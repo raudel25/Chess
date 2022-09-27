@@ -2,8 +2,8 @@
 
 Piece[,] table = new Piece[8,8];
 
-Queen r = new Queen(Color.White);
-Tower t = new Tower(Color.Black);
+Bishop r = new Bishop(Color.White);
+Tower t = new Tower(Color.White);
 t.Positions.Add((1, 4));
 r.Positions.Add((1,1));
 

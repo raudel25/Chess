@@ -12,11 +12,13 @@ public abstract class Piece
 
     public abstract int Valor { get; }
 
-    public abstract List<(int, int)> Move(Piece[,] table);
+    public List<(int, int)> Move(Piece?[,] table) => Moves.Move(this, table);
 
     public Positions Positions { get; private set; }
 
-    public Piece(Color color)
+    protected abstract Moves Moves { get; }
+
+    protected Piece(Color color)
     {
         this.Color = color;
         this.Positions = new Positions();
