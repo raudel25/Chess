@@ -8,6 +8,7 @@ public class Pawn : Piece
 
     public Pawn(Color color) : base(color)
     {
-        this.Moves = new Moves(new[] {0,1,2,4,5,6}, true);
+        int[] aux = color == Color.White ? new[] {6, 5, 4} : new[] {0, 1, 2};
+        this.Moves = new MovePawn(aux, color);
     }
 }

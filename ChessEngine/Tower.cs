@@ -8,6 +8,6 @@ public class Tower : Piece
 
     public Tower(Color color) : base(color)
     {
-        this.Moves = new Moves(new[] {1, 3, 5, 7});
+        this.Moves = new Moves(new[] {1, 3, 5, 7},color);
     }
 }

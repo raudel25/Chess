@@ -12,7 +12,7 @@ public abstract class Piece
 
     public abstract int Valor { get; }
 
-    public List<(int, int)> Move(Piece?[,] table) => Moves.Move(this, table);
+    public List<(int, int)> Move(Piece?[,] table) => Moves.Move(this.Positions.Current, table);
 
     public Positions Positions { get; private set; }
 

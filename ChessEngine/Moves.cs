@@ -6,6 +6,8 @@ public class Moves
 
     private readonly bool _oneMove;
 
+    protected readonly Color _color;
+
     public static readonly (int, int)[] Direction =
     {
         //Direction
@@ -14,23 +16,24 @@ public class Moves
         (-1, -2), (-2, -1), (-2, 1), (-1, 2), (1, 2), (2, 1), (2, -1), (1, -2)
     };
 
-    public Moves(int[] valid, bool oneMove = false)
+    public Moves(int[] valid, Color color, bool oneMove = false)
     {
         this._valid = valid;
         this._oneMove = oneMove;
+        this._color = color;
     }
 
-    public List<(int, int)> Move(Piece piece, Piece?[,] table)
+    public List<(int, int)> Move((int, int) positionCurrent, Piece?[,] table)
     {
         List<(int, int)> possible = new List<(int, int)>();
 
         foreach (var item in this._valid)
         {
-            (int, int) position = SumPosition(piece.Positions.Current, Direction[item]);
+            (int, int) position = SumPosition(positionCurrent, Direction[item]);
 
 
             bool stop = false;
-            while (DecideMove(piece, table, position, possible) && !stop)
+            while (DecideMove(table, position, possible, item) && !stop)
             {
                 position = SumPosition(position, Direction[item]);
                 stop = this._oneMove;
@@ -40,7 +43,7 @@ public class Moves
         return possible;
     }
 
-    public bool DecideMove(Piece piece, Piece?[,] table, (int, int) position, List<(int, int)> possible)
+    private bool DecideMove(Piece?[,] table, (int, int) position, List<(int, int)> possible,int direction)
     {
         if (!CorrectMove(position)) return false;
 
@@ -51,9 +54,19 @@ public class Moves
             return true;
         }
 
-        if (table[position.Item1, position.Item2]!.Color == piece.Color) return false;
+        if (table[position.Item1, position.Item2]!.Color == this._color) return false;
 
-        possible.Add(position);
+        return DecideToCapture(table, position, possible, direction);
+    }
+
+    protected virtual bool DecideToCapture(Piece?[,] table, (int, int) position, List<(int, int)> possible, int direction)
+    {
+        if (table[position.Item1, position.Item2]!.Color != this._color)
+        {
+            possible.Add(position);
+            
+            return true;
+        }
 
         return false;
     }
