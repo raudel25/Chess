@@ -54,12 +54,11 @@ public class Moves
         foreach (var item in this._validMove)
         {
             (int, int) position = SumPosition(positionCurrent, Direction[item]);
-
-            bool stop = false;
-            while (DecideMove(table, position, possible) && !stop)
+            
+            while (DecideMove(table, position, possible))
             {
                 position = SumPosition(position, Direction[item]);
-                stop = this._oneMove;
+                if(this._oneMove) break;
             }
         }
 
@@ -79,12 +78,11 @@ public class Moves
         foreach (var item in this._validCapture)
         {
             (int, int) position = SumPosition(positionCurrent, Direction[item]);
-
-            bool stop = false;
-            while (DecideToCapture(table, position, possible) && !stop)
+            
+            while (DecideToCapture(table, position, possible))
             {
                 position = SumPosition(position, Direction[item]);
-                stop = this._oneMove;
+                if(this._oneMove) break;
             }
         }
 
@@ -140,7 +138,7 @@ public class Moves
     /// </summary>
     /// <param name="move">Casilla</param>
     /// <returns>Determina que la casilla no este fuera del tablero</returns>
-    private static bool CorrectMove((int, int) move)
+    public static bool CorrectMove((int, int) move)
     {
         if (move.Item1 < 0 || move.Item2 < 0) return false;
         if (move.Item1 >= 8 || move.Item2 >= 8) return false;
@@ -154,5 +152,5 @@ public class Moves
     /// <param name="a">Casilla</param>
     /// <param name="b">Incremento</param>
     /// <returns>Nueva casilla</returns>
-    private static (int, int) SumPosition((int, int) a, (int, int) b) => (a.Item1 + b.Item1, a.Item2 + b.Item2);
+    public static (int, int) SumPosition((int, int) a, (int, int) b) => (a.Item1 + b.Item1, a.Item2 + b.Item2);
 }

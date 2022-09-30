@@ -10,7 +10,7 @@ public class JudgeMoves
     /// <returns>Lista de posibles casillas</returns>
     public List<(int, int)> Move(Piece piece, Table table) => ConditionPawnToQueen(piece)
         ? new List<(int, int)>()
-        : PossibleJake(piece, piece.Move(table), table);
+        : PossibleMoves(piece, piece.Move(table), table);
 
     /// <summary>
     /// Determina el enroque
@@ -34,8 +34,8 @@ public class JudgeMoves
     /// <param name="table">Tablero</param>
     /// <returns>Lista de casillas</returns>
     public List<(int, int)> MovePawnToQueen(Piece piece, Table table) => ConditionPawnToQueen(piece)
-        ? PossibleJake(piece, piece.Move(table), table)
-            .Concat(PossibleJake(piece, piece.MoveCapture(table), table)).ToList()
+        ? PossibleMoves(piece, piece.Move(table), table)
+            .Concat(PossibleMoves(piece, piece.MoveCapture(table), table)).ToList()
         : new List<(int, int)>();
 
     /// <summary>
@@ -46,7 +46,44 @@ public class JudgeMoves
     /// <returns>Lista de posibles casillas</returns>
     public List<(int, int)> MoveCapture(Piece piece, Table table) => ConditionPawnToQueen(piece)
         ? new List<(int, int)>()
-        : PossibleJake(piece, piece.Move(table), table);
+        : PossibleMoves(piece, piece.Move(table), table);
+
+    /// <summary>
+    /// Determina el movimiento del peon al paso
+    /// </summary>
+    /// <param name="piece">Pieza</param>
+    /// <param name="table">Tablero</param>
+    /// <returns>Lista de posibles casillas</returns>
+    public List<(int, int, int, int)> MovePawnToStep(Piece piece, Table table)
+    {
+        List<(int, int, int, int)> possible = new List<(int, int, int, int)>();
+
+        if (piece is not Pawn) return possible;
+        (int, int) current = piece.Positions.Current;
+        (int, int) initial = piece.Positions[0];
+
+        if (Math.Abs(current.Item1 - initial.Item1) == 3)
+        {
+            (int, int) directionMove = piece.Color == Color.White ? (1, 0) : (-1, 0);
+            (int, int) positionKing = PositionKing(table, piece.Color);
+
+            var aux = DecidePawnToStep(current, (0, 1), directionMove, table);
+            if (aux != (-1, -1, -1, -1))
+            {
+                if (!PossibleJake(piece, (aux.Item1, aux.Item2), (aux.Item3, aux.Item4), positionKing, table))
+                    possible.Add(aux);
+            }
+
+            aux = DecidePawnToStep(current, (0, -1), directionMove, table);
+            if (aux != (-1, -1, -1, -1))
+            {
+                if (!PossibleJake(piece, (aux.Item1, aux.Item2), (aux.Item3, aux.Item4), positionKing, table))
+                    possible.Add(aux);
+            }
+        }
+
+        return possible;
+    }
 
     /// <summary>
     /// Determina si el rey esta en jake
@@ -82,6 +119,33 @@ public class JudgeMoves
         return false;
     }
 
+    /// <summary>
+    /// Decide si es posible el peon al paso
+    /// </summary>
+    /// <param name="current">Posicion actual</param>
+    /// <param name="directionPaw">Direccion del peon a capturar</param>
+    /// <param name="directionMove">Direccion del movimiento</param>
+    /// <param name="table">Tablero</param>
+    /// <returns>Posicion final y peon a capturar</returns>
+    private (int, int, int, int) DecidePawnToStep((int, int) current, (int, int) directionPaw, (int, int) directionMove,
+        Table table)
+    {
+        (int, int) positionPaw = Moves.SumPosition(current, directionPaw);
+        (int, int) positionMove = Moves.SumPosition(positionPaw, directionMove);
+
+        if (Moves.CorrectMove(positionPaw))
+        {
+            if (table[positionPaw.Item1, positionPaw.Item2] is Pawn)
+            {
+                if (table[positionPaw.Item1, positionPaw.Item2]!.NotMove(1) &&
+                    table[positionMove.Item1, positionMove.Item2] is null)
+                    return (positionMove.Item1, positionMove.Item2, positionPaw.Item1, positionPaw.Item2);
+            }
+        }
+
+        return (-1, -1, -1, -1);
+    }
+
     private bool TreatPosition(Table table, (int, int) position, Color color, bool singleMove)
     {
         for (int i = 0; i < table.Rows; i++)
@@ -104,33 +168,52 @@ public class JudgeMoves
     }
 
     /// <summary>
-    /// Determina si el rey esta en jake para los distintos movimientos
+    /// Determina si la jugada es valida para los distintos movimientos
     /// </summary>
     /// <param name="possible">Lista de posibles jugadas</param>
     /// <param name="table">Tablero</param>
     /// <param name="piece">Pieza</param>
     /// <returns>Lista de posibles jugadas</returns>
-    private List<(int, int)> PossibleJake(Piece piece, List<(int, int)> possible, Table table)
+    private List<(int, int)> PossibleMoves(Piece piece, List<(int, int)> possible, Table table)
     {
         List<(int, int)> possibleAct = new List<(int, int)>();
 
         bool king = piece is King;
         (int, int) positionKing = king ? (-1, -1) : PositionKing(table, piece.Color);
-        (int, int) current = piece.Positions.Current;
 
         foreach (var item in possible)
         {
-            Piece? aux = table[item.Item1, item.Item2];
-            (table.Copy[item.Item1, item.Item2], table.Copy[current.Item1, current.Item2]) =
-                (table[current.Item1, current.Item2], null);
-
-            if (!TreatPosition(table, king ? item : positionKing, piece.Color, true)) possibleAct.Add(item);
-
-            (table.Copy[item.Item1, item.Item2], table.Copy[current.Item1, current.Item2]) =
-                (aux, table[item.Item1, item.Item2]);
+            if (!PossibleJake(piece, item, item, king ? item : positionKing, table)) possibleAct.Add(item);
         }
 
         return possibleAct;
+    }
+
+    /// <summary>
+    /// Determina si El rey queda en jake para un movimiento
+    /// </summary>
+    /// <param name="piece">Pieza</param>
+    /// <param name="position">Posicion</param>
+    /// <param name="positionCapture">Posicion de la pieza a capturar</param>
+    /// <param name="positionKing">Posicion del rey</param>
+    /// <param name="table">Tablero</param>
+    /// <returns>Determina si El rey queda en jake para un movimiento</returns>
+    private bool PossibleJake(Piece piece, (int, int) position, (int, int) positionCapture, (int, int) positionKing,
+        Table table)
+    {
+        bool possible = false;
+        (int, int) current = piece.Positions.Current;
+
+        Piece? aux = table[positionCapture.Item1, positionCapture.Item2];
+        (table.Copy[position.Item1, position.Item2], table.Copy[current.Item1, current.Item2]) =
+            (table[current.Item1, current.Item2], null);
+
+        if (TreatPosition(table, positionKing, piece.Color, true)) possible = true;
+
+        (table.Copy[positionCapture.Item1, positionCapture.Item2], table.Copy[current.Item1, current.Item2]) =
+            (aux, table[position.Item1, position.Item2]);
+
+        return possible;
     }
 
     /// <summary>

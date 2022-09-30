@@ -23,7 +23,7 @@ public abstract class Piece
     /// </summary>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int)> Move(Table table) => Moves.Move(this.Positions.Current, table);
+    public virtual List<(int, int)> Move(Table table) => Moves.Move(this.Positions.Current, table);
 
     /// <summary>
     /// Determina el movimineto de captura de la pieza
@@ -48,11 +48,11 @@ public abstract class Piece
         this.Positions = new Positions();
     }
 
-    public bool NotMove()
+    public bool NotMove(int ind = 0)
     {
-        (int, int) aux = this.Positions.Current;
+        (int, int) aux = this.Positions[0];
 
-        foreach (var item in this.Positions)
+        foreach (var item in this.Positions.Take(this.Positions.Count - ind))
             if (item != aux)
                 return false;
 
