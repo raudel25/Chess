@@ -23,14 +23,22 @@ public class Positions : IEnumerable<(int, int)>
         }
     }
 
+    /// <summary>
+    /// Annadir una nueva posicion
+    /// </summary>
+    /// <param name="pos">Posicion para annadir</param>
     public void Add((int, int) pos) => _positions.Add(pos);
 
+    /// <summary>
+    /// Determina la posicion actual
+    /// </summary>
+    /// <exception cref="Exception">La posicion inicial no se ha definido</exception>
     public (int, int) Current
     {
         get
         {
             if (_positions.Count == 0) throw new Exception("The initial position has not be defined");
-            return _positions[_positions.Count - 1];       
+            return _positions[_positions.Count - 1];
         }
     }
 
