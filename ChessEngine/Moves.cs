@@ -2,7 +2,9 @@ namespace ChessEngine;
 
 public class Moves
 {
-    private readonly int[] _valid;
+    private readonly int[] _validMove;
+
+    private readonly int[] _validCapture;
 
     private readonly bool _oneMove;
 
@@ -16,9 +18,9 @@ public class Moves
         (-1, -2), (-2, -1), (-2, 1), (-1, 2), (1, 2), (2, 1), (2, -1), (1, -2)
     };
 
-    public Moves(int[] valid, Color color, bool oneMove = false)
+    public Moves(int[] validMove,int[] validCapture, Color color, bool oneMove = false)
     {
-        this._valid = valid;
+        this._validMove = validMove;
         this._oneMove = oneMove;
         this._color = color;
     }
@@ -27,13 +29,31 @@ public class Moves
     {
         List<(int, int)> possible = new List<(int, int)>();
 
-        foreach (var item in this._valid)
+        foreach (var item in this._validMove)
         {
             (int, int) position = SumPosition(positionCurrent, Direction[item]);
-
-
+            
             bool stop = false;
             while (DecideMove(table, position, possible, item) && !stop)
+            {
+                position = SumPosition(position, Direction[item]);
+                stop = this._oneMove;
+            }
+        }
+
+        return possible;
+    }
+    
+    public List<(int, int)> MoveCapture((int, int) positionCurrent, Piece?[,] table)
+    {
+        List<(int, int)> possible = new List<(int, int)>();
+
+        foreach (var item in this._validCapture)
+        {
+            (int, int) position = SumPosition(positionCurrent, Direction[item]);
+            
+            bool stop = false;
+            while (DecideToCapture(table, position, possible, item) && !stop)
             {
                 position = SumPosition(position, Direction[item]);
                 stop = this._oneMove;
@@ -54,13 +74,15 @@ public class Moves
             return true;
         }
 
-        if (table[position.Item1, position.Item2]!.Color == this._color) return false;
-
-        return DecideToCapture(table, position, possible, direction);
+        return false;
     }
 
-    protected virtual bool DecideToCapture(Piece?[,] table, (int, int) position, List<(int, int)> possible, int direction)
+    private bool DecideToCapture(Piece?[,] table, (int, int) position, List<(int, int)> possible, int direction)
     {
+        if (!CorrectMove(position)) return false;
+        
+        if (table[position.Item1, position.Item2] is null) return true;
+        
         if (table[position.Item1, position.Item2]!.Color != this._color)
         {
             possible.Add(position);
@@ -80,23 +102,4 @@ public class Moves
     }
 
     private static (int, int) SumPosition((int, int) a, (int, int) b) => (a.Item1 + b.Item1, a.Item2 + b.Item2);
-
-    public static bool TreatPosition(Piece?[,] table, (int, int) position, Color color)
-    {
-        for (int i = 0; i < table.GetLength(0); i++)
-        {
-            for (int j = 0; j < table.GetLength(1); j++)
-            {
-                if (table[i, j] is not null)
-                {
-                    if (table[i, j]!.Color == color)
-                    {
-                        if (table[i, j]!.Move(table).Contains(position)) return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
 }

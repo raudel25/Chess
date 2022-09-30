@@ -8,6 +8,6 @@ public class King : Piece
 
     public King(Color color) : base(color)
     {
-        this.Moves = new Moves(new[] {1, 3, 5, 7}, color,true);
+        this.Moves = new Moves(new[] {1, 3, 5, 7},new[] {1, 3, 5, 7}, color,true);
     }
 }
