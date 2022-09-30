@@ -8,12 +8,9 @@ public class JudgeMoves
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int)> Move(Piece piece, Piece?[,] table)
-    {
-        if (piece is King) return PossibleJake(piece, piece.Move(table), table);
-
-        return piece.Move(table);
-    }
+    public List<(int, int)> Move(Piece piece, Piece?[,] table) => ConditionPawnToCorona(piece)
+        ? new List<(int, int)>()
+        : PossibleJake(piece, piece.Move(table), table);
 
     /// <summary>
     /// Determina el enroque
@@ -23,7 +20,7 @@ public class JudgeMoves
     /// <returns>Lista de posibles casillas</returns>
     public List<(int, int, int, int)> MoveEnRock(Piece piece, Piece?[,] table)
     {
-        if (!piece.NotMove()) return new List<(int, int, int, int)>();
+        if (!piece.NotMove() || piece is not King) return new List<(int, int, int, int)>();
 
         if (piece.Color == Color.White) return DeterminateEnRock(table, piece.Color, 0);
 
@@ -31,17 +28,25 @@ public class JudgeMoves
     }
 
     /// <summary>
+    /// Determina las jugadas con las que un peon puede coronar
+    /// </summary>
+    /// <param name="piece">Pieza</param>
+    /// <param name="table">Tablero</param>
+    /// <returns>Lista de casillas</returns>
+    public List<(int, int)> MovePawnToCorona(Piece piece, Piece?[,] table) => ConditionPawnToCorona(piece)
+        ? PossibleJake(piece, piece.Move(table), table)
+            .Concat(PossibleJake(piece, piece.MoveCapture(table), table)).ToList()
+        : new List<(int, int)>();
+
+    /// <summary>
     /// Determina el movimiento de captura de una pieza
     /// </summary>
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int)> MoveCapture(Piece piece, Piece?[,] table)
-    {
-        if (piece is King) return PossibleJake(piece, piece.MoveCapture(table), table);
-
-        return piece.Move(table);
-    }
+    public List<(int, int)> MoveCapture(Piece piece, Piece?[,] table) => ConditionPawnToCorona(piece)
+        ? new List<(int, int)>()
+        : PossibleJake(piece, piece.Move(table), table);
 
     /// <summary>
     /// Determina si el rey esta en jake
@@ -60,6 +65,22 @@ public class JudgeMoves
     /// <returns>Determina si una casilla esta amenazada</returns>
     private bool TreatPosition(Piece?[,] table, (int, int) position, Color color) =>
         TreatPosition(table, position, color, false);
+
+    /// <summary>
+    /// Determina la condicion para que un peon pueda coronar
+    /// </summary>
+    /// <param name="piece">Pieza</param>
+    /// <returns>Determina la condicion para que un peon pueda coronar</returns>
+    private bool ConditionPawnToCorona(Piece piece)
+    {
+        if (piece is not Pawn) return false;
+
+        if (piece.Color == Color.White && piece.Positions.Current.Item1 == 1) return true;
+
+        if (piece.Color == Color.Black && piece.Positions.Current.Item1 == 7) return true;
+
+        return false;
+    }
 
     private bool TreatPosition(Piece?[,] table, (int, int) position, Color color, bool singleMove)
     {
