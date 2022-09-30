@@ -10,7 +10,7 @@ public class JudgeMoves
     /// <returns>Lista de posibles casillas</returns>
     public List<(int, int)> Move(Piece piece, Piece?[,] table)
     {
-        if (piece is King) return PossibleJake(piece.Move(table), table, piece.Color);
+        if (piece is King) return PossibleJake(piece, piece.Move(table), table);
 
         return piece.Move(table);
     }
@@ -38,10 +38,18 @@ public class JudgeMoves
     /// <returns>Lista de posibles casillas</returns>
     public List<(int, int)> MoveCapture(Piece piece, Piece?[,] table)
     {
-        if (piece is King) return PossibleJake(piece.MoveCapture(table), table, piece.Color);
+        if (piece is King) return PossibleJake(piece, piece.MoveCapture(table), table);
 
         return piece.Move(table);
     }
+
+    /// <summary>
+    /// Determina si el rey esta en jake
+    /// </summary>
+    /// <param name="table">Tablero</param>
+    /// <param name="color">Color</param>
+    /// <returns>Determina si el rey esta en jake</returns>
+    public bool Jake(Piece?[,] table, Color color) => TreatPosition(table, PositionKing(table, color), color);
 
     /// <summary>
     /// Determina si una casilla esta amenazada
@@ -75,22 +83,54 @@ public class JudgeMoves
     }
 
     /// <summary>
-    /// Determina las casillas en las que el rey no puede jugar
+    /// Determina si el rey esta en jake para los distintos movimientos
     /// </summary>
     /// <param name="possible">Lista de posibles jugadas</param>
     /// <param name="table">Tablero</param>
-    /// <param name="color">Color</param>
+    /// <param name="piece">Pieza</param>
     /// <returns>Lista de posibles jugadas</returns>
-    public List<(int, int)> PossibleJake(List<(int, int)> possible, Piece?[,] table, Color color)
+    private List<(int, int)> PossibleJake(Piece piece, List<(int, int)> possible, Piece?[,] table)
     {
         List<(int, int)> possibleAct = new List<(int, int)>();
 
+        bool king = piece is King;
+        (int, int) positionKing = king ? (-1, -1) : PositionKing(table, piece.Color);
+        (int, int) current = piece.Positions.Current;
+
         foreach (var item in possible)
         {
-            if (!TreatPosition(table, item, color, true)) possibleAct.Add(item);
+            Piece? aux = table[item.Item1, item.Item2];
+            (table[item.Item1, item.Item2], table[current.Item1, current.Item2]) =
+                (table[current.Item1, current.Item2], null);
+
+            if (!TreatPosition(table, king ? item : positionKing, piece.Color, true)) possibleAct.Add(item);
+
+            (table[item.Item1, item.Item2], table[current.Item1, current.Item2]) = (aux, table[item.Item1, item.Item2]);
         }
 
         return possibleAct;
+    }
+
+    /// <summary>
+    /// Determina la posicion del Rey
+    /// </summary>
+    /// <param name="table">Tablero</param>
+    /// <param name="color">Color</param>
+    /// <returns>Determina la posicion del Rey</returns>
+    private (int, int) PositionKing(Piece?[,] table, Color color)
+    {
+        for (int i = 0; i < table.GetLength(0); i++)
+        {
+            for (int j = 0; j < table.GetLength(1); j++)
+            {
+                if (table[i, j] is King)
+                {
+                    if (table[i, j]!.Color == color) return (i, j);
+                }
+            }
+        }
+
+        return (-1, -1);
     }
 
     /// <summary>
