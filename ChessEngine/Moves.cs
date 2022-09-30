@@ -47,7 +47,7 @@ public class Moves
     /// <param name="positionCurrent">Posicion actual</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int)> Move((int, int) positionCurrent, Piece?[,] table)
+    public List<(int, int)> Move((int, int) positionCurrent, Table table)
     {
         List<(int, int)> possible = new List<(int, int)>();
 
@@ -72,7 +72,7 @@ public class Moves
     /// <param name="positionCurrent">Posicion actual</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int)> MoveCapture((int, int) positionCurrent, Piece?[,] table)
+    public List<(int, int)> MoveCapture((int, int) positionCurrent, Table table)
     {
         List<(int, int)> possible = new List<(int, int)>();
 
@@ -98,7 +98,7 @@ public class Moves
     /// <param name="position">Posicion</param>
     /// <param name="possible">Lista de posibles casillas</param>
     /// <returns>Lista de posibles casillas</returns>
-    private bool DecideMove(Piece?[,] table, (int, int) position, List<(int, int)> possible)
+    private bool DecideMove(Table table, (int, int) position, List<(int, int)> possible)
     {
         if (!CorrectMove(position)) return false;
 
@@ -119,7 +119,7 @@ public class Moves
     /// <param name="position">Posicion</param>
     /// <param name="possible">Lista de posibles casillas</param>
     /// <returns>Lista de posibles casillas</returns>
-    private bool DecideToCapture(Piece?[,] table, (int, int) position, List<(int, int)> possible)
+    private bool DecideToCapture(Table table, (int, int) position, List<(int, int)> possible)
     {
         if (!CorrectMove(position)) return false;
 

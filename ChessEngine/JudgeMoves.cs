@@ -8,7 +8,7 @@ public class JudgeMoves
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int)> Move(Piece piece, Piece?[,] table) => ConditionPawnToCorona(piece)
+    public List<(int, int)> Move(Piece piece, Table table) => ConditionPawnToQueen(piece)
         ? new List<(int, int)>()
         : PossibleJake(piece, piece.Move(table), table);
 
@@ -18,7 +18,7 @@ public class JudgeMoves
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int, int, int)> MoveEnRock(Piece piece, Piece?[,] table)
+    public List<(int, int, int, int)> MoveEnRock(Piece piece, Table table)
     {
         if (!piece.NotMove() || piece is not King) return new List<(int, int, int, int)>();
 
@@ -33,7 +33,7 @@ public class JudgeMoves
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de casillas</returns>
-    public List<(int, int)> MovePawnToCorona(Piece piece, Piece?[,] table) => ConditionPawnToCorona(piece)
+    public List<(int, int)> MovePawnToQueen(Piece piece, Table table) => ConditionPawnToQueen(piece)
         ? PossibleJake(piece, piece.Move(table), table)
             .Concat(PossibleJake(piece, piece.MoveCapture(table), table)).ToList()
         : new List<(int, int)>();
@@ -44,7 +44,7 @@ public class JudgeMoves
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int)> MoveCapture(Piece piece, Piece?[,] table) => ConditionPawnToCorona(piece)
+    public List<(int, int)> MoveCapture(Piece piece, Table table) => ConditionPawnToQueen(piece)
         ? new List<(int, int)>()
         : PossibleJake(piece, piece.Move(table), table);
 
@@ -54,7 +54,7 @@ public class JudgeMoves
     /// <param name="table">Tablero</param>
     /// <param name="color">Color</param>
     /// <returns>Determina si el rey esta en jake</returns>
-    public bool Jake(Piece?[,] table, Color color) => TreatPosition(table, PositionKing(table, color), color);
+    public bool Jake(Table table, Color color) => TreatPosition(table, PositionKing(table, color), color);
 
     /// <summary>
     /// Determina si una casilla esta amenazada
@@ -63,7 +63,7 @@ public class JudgeMoves
     /// <param name="position">Casilla</param>
     /// <param name="color">Color del jugador</param>
     /// <returns>Determina si una casilla esta amenazada</returns>
-    private bool TreatPosition(Piece?[,] table, (int, int) position, Color color) =>
+    private bool TreatPosition(Table table, (int, int) position, Color color) =>
         TreatPosition(table, position, color, false);
 
     /// <summary>
@@ -71,7 +71,7 @@ public class JudgeMoves
     /// </summary>
     /// <param name="piece">Pieza</param>
     /// <returns>Determina la condicion para que un peon pueda coronar</returns>
-    private bool ConditionPawnToCorona(Piece piece)
+    private bool ConditionPawnToQueen(Piece piece)
     {
         if (piece is not Pawn) return false;
 
@@ -82,11 +82,11 @@ public class JudgeMoves
         return false;
     }
 
-    private bool TreatPosition(Piece?[,] table, (int, int) position, Color color, bool singleMove)
+    private bool TreatPosition(Table table, (int, int) position, Color color, bool singleMove)
     {
-        for (int i = 0; i < table.GetLength(0); i++)
+        for (int i = 0; i < table.Rows; i++)
         {
-            for (int j = 0; j < table.GetLength(1); j++)
+            for (int j = 0; j < table.Columns; j++)
             {
                 if (table[i, j] is not null)
                 {
@@ -110,7 +110,7 @@ public class JudgeMoves
     /// <param name="table">Tablero</param>
     /// <param name="piece">Pieza</param>
     /// <returns>Lista de posibles jugadas</returns>
-    private List<(int, int)> PossibleJake(Piece piece, List<(int, int)> possible, Piece?[,] table)
+    private List<(int, int)> PossibleJake(Piece piece, List<(int, int)> possible, Table table)
     {
         List<(int, int)> possibleAct = new List<(int, int)>();
 
@@ -121,12 +121,13 @@ public class JudgeMoves
         foreach (var item in possible)
         {
             Piece? aux = table[item.Item1, item.Item2];
-            (table[item.Item1, item.Item2], table[current.Item1, current.Item2]) =
+            (table.Copy[item.Item1, item.Item2], table.Copy[current.Item1, current.Item2]) =
                 (table[current.Item1, current.Item2], null);
 
             if (!TreatPosition(table, king ? item : positionKing, piece.Color, true)) possibleAct.Add(item);
 
-            (table[item.Item1, item.Item2], table[current.Item1, current.Item2]) = (aux, table[item.Item1, item.Item2]);
+            (table.Copy[item.Item1, item.Item2], table.Copy[current.Item1, current.Item2]) =
+                (aux, table[item.Item1, item.Item2]);
         }
 
         return possibleAct;
@@ -138,11 +139,11 @@ public class JudgeMoves
     /// <param name="table">Tablero</param>
     /// <param name="color">Color</param>
     /// <returns>Determina la posicion del Rey</returns>
-    private (int, int) PositionKing(Piece?[,] table, Color color)
+    private (int, int) PositionKing(Table table, Color color)
     {
-        for (int i = 0; i < table.GetLength(0); i++)
+        for (int i = 0; i < table.Rows; i++)
         {
-            for (int j = 0; j < table.GetLength(1); j++)
+            for (int j = 0; j < table.Columns; j++)
             {
                 if (table[i, j] is King)
                 {
@@ -161,7 +162,7 @@ public class JudgeMoves
     /// <param name="ind">indice</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    private List<(int, int, int, int)> DeterminateEnRock(Piece?[,] table, Color color, int ind)
+    private List<(int, int, int, int)> DeterminateEnRock(Table table, Color color, int ind)
     {
         List<(int, int, int, int)> possible = new List<(int, int, int, int)>();
         if (table[ind, 0] is Rock && table[ind, 1] is null && table[ind, 2] is null)

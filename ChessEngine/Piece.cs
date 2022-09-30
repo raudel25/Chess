@@ -23,14 +23,14 @@ public abstract class Piece
     /// </summary>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int)> Move(Piece?[,] table) => Moves.Move(this.Positions.Current, table);
+    public List<(int, int)> Move(Table table) => Moves.Move(this.Positions.Current, table);
 
     /// <summary>
     /// Determina el movimineto de captura de la pieza
     /// </summary>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int)> MoveCapture(Piece?[,] table) => Moves.MoveCapture(this.Positions.Current, table);
+    public List<(int, int)> MoveCapture(Table table) => Moves.MoveCapture(this.Positions.Current, table);
 
     /// <summary>
     /// Lista de posiciones del tablero que ha ocupado la pieza
