@@ -8,6 +8,11 @@ public class Bishop : Piece
 
     internal Bishop(Color color) : base(color)
     {
-        this.Moves = new Moves(new[] {0, 2, 4, 6},new[] {0, 2, 4, 6},color);
+        this.Moves = new Moves(new[] {0, 2, 4, 6}, new[] {0, 2, 4, 6}, color);
+    }
+
+    internal Bishop(Color color, Positions positions) : base(color, positions)
+    {
+        this.Moves = new Moves(new[] {0, 2, 4, 6}, new[] {0, 2, 4, 6}, color);
     }
 }

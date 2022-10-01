@@ -36,6 +36,8 @@ public abstract class Piece
     /// Lista de posiciones del tablero que ha ocupado la pieza
     /// </summary>
     public Positions Positions { get; private set; }
+    
+    public int Convert { get; }
 
     /// <summary>
     /// Movimiento de la pieza
@@ -44,8 +46,15 @@ public abstract class Piece
 
     protected Piece(Color color)
     {
+        this.Convert = -1;
         this.Color = color;
         this.Positions = new Positions();
+    }
+    protected Piece(Color color,Positions positions)
+    {
+        this.Convert = positions.Count;
+        this.Color = color;
+        this.Positions = positions;
     }
 
     public bool NotMove(int ind = 0)

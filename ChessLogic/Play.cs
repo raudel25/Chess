@@ -8,17 +8,26 @@ public class Play
 
     public (int, int) PositionCapture { get; private set; }
 
-    internal Play((int, int) positionCurrent, (int, int) positionMove, (int, int) positionCapture)
+    protected Table Table;
+
+    internal Play((int, int) positionCurrent, (int, int) positionMove, (int, int) positionCapture, Table table)
     {
         this.PositionCurrent = positionCurrent;
         this.PositionMove = positionMove;
         this.PositionCapture = positionCapture;
+        this.Table = table;
     }
 
-    public virtual void PlayGame(Table table)
+    protected void BasicPlayGame()
     {
-        if (PositionCapture != (-1, -1)) table.Capture(PositionCapture);
-        table.Move(PositionCurrent, PositionMove);
+        if (PositionCapture != (-1, -1)) Table.Capture(PositionCapture);
+        Table.Move(PositionCurrent, PositionMove);
+    }
+
+    public virtual void PlayGame()
+    {
+        BasicPlayGame();
+        Table.ActPosition();
     }
 }
 
@@ -26,16 +35,17 @@ public class PlayEnRock : Play
 {
     private readonly Play _playRock;
 
-    internal PlayEnRock((int, int) kingCurrent, (int, int) rockCurrent, (int, int) kingMove, (int, int) rockMove) : base(
-        kingCurrent, kingMove, (-1, -1))
+    internal PlayEnRock((int, int) kingCurrent, (int, int) rockCurrent, (int, int) kingMove,
+        (int, int) rockMove, Table table) : base(kingCurrent, kingMove, (-1, -1), table)
     {
-        _playRock = new Play(rockCurrent, rockMove, (-1, -1));
+        _playRock = new Play(rockCurrent, rockMove, (-1, -1), table);
     }
 
-    public override void PlayGame(Table table)
+    public override void PlayGame()
     {
-        base.PlayGame(table);
-        _playRock.PlayGame(table);
+        BasicPlayGame();
+        _playRock.PlayGame();
+        Table.ActPosition();
     }
 }
 
@@ -43,16 +53,16 @@ public class PlayPawnToQueen : Play
 {
     public Piece Piece { get; set; }
 
-    internal PlayPawnToQueen(Color color, (int, int) positionCurrent, (int, int) positionMove,
-        (int, int) positionCapture) : base(
-        positionCurrent, positionMove, positionCapture)
+    internal PlayPawnToQueen(Pawn pawn, (int, int) positionCurrent, (int, int) positionMove,
+        (int, int) positionCapture,Table table) : base(positionCurrent, positionMove, positionCapture,table)
     {
-        this.Piece = new Queen(color);
+        this.Piece = new Queen(pawn.Color, pawn.Positions);
     }
 
-    public override void PlayGame(Table table)
+    public override void PlayGame()
     {
-        base.PlayGame(table);
-        table.Convert(Piece, this.PositionMove);
+        BasicPlayGame();
+        Table.Convert(Piece, this.PositionMove);
+        Table.ActPosition();
     }
 }

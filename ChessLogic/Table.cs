@@ -8,6 +8,11 @@ public class Table
     private readonly Piece?[,] _table;
 
     /// <summary>
+    /// Lista de piezas capturadas
+    /// </summary>
+    private readonly List<Piece> _captured;
+
+    /// <summary>
     /// Cantidad de filas
     /// </summary>
     public int Rows => 8;
@@ -18,9 +23,19 @@ public class Table
     public int Columns => 8;
     
     /// <summary>
+    /// Cantidad de turnos
+    /// </summary>
+    public int CantTurns { get; private set; }
+    
+    /// <summary>
+    /// Turno inmediato
+    /// </summary>
+    public Color Turn { get; private set; }
+
+    /// <summary>
     /// Copia del tablero
     /// </summary>
-    public Piece?[,] Copy { get; set; }
+    public Piece?[,] Copy { get; private set; }
 
     public Piece? this[int i, int j]
     {
@@ -35,13 +50,9 @@ public class Table
     {
         this._table = StartPosition();
         this.Copy = new Piece[8, 8];
-        Reset();
-    }
-
-    private Table(Piece?[,] table)
-    {
-        this._table = table;
-        this.Copy = new Piece[8, 8];
+        this._captured = new List<Piece>();
+        this.Turn = Color.White;
+        
         Reset();
     }
 
@@ -79,6 +90,9 @@ public class Table
         return table;
     }
 
+    /// <summary>
+    /// Resetear la copia
+    /// </summary>
     public void Reset()
     {
         for (int i = 0; i < _table.GetLength(0); i++)
@@ -87,27 +101,82 @@ public class Table
         }
     }
 
-    public void Capture((int, int) position) => _table[position.Item1, position.Item2] = null;
-    
-    public void Move((int, int) positionCurrent, (int, int) positionMove) =>
-        (_table[positionCurrent.Item1, positionCurrent.Item2], _table[positionMove.Item1, positionMove.Item2]) =
-        (null, _table[positionCurrent.Item1, positionCurrent.Item2]);
-
-    public void Convert(Piece piece, (int, int) position) => _table[position.Item1, position.Item2] = piece;
-
-    public Table ActPosition()
+    /// <summary>
+    /// Movimiento de captura
+    /// </summary>
+    /// <param name="position">Posicion</param>
+    internal void Capture((int, int) position)
     {
-        Piece?[,] table = new Piece[_table.GetLength(0), _table.GetLength(1)];
+        _captured.Add(_table[position.Item1, position.Item2]!);
+        _table[position.Item1, position.Item2] = null;
+    }
 
+    /// <summary>
+    /// Movimiento
+    /// </summary>
+    /// <param name="positionCurrent">Posicion actual</param>
+    /// <param name="positionMove">Posicion para moverse</param>
+    internal void Move((int, int) positionCurrent, (int, int) positionMove)
+    {
+        Turn = _table[positionCurrent.Item1, positionCurrent.Item2]!.Color == Color.White ? Color.Black : Color.White;
+        (_table[positionCurrent.Item1, positionCurrent.Item2], _table[positionMove.Item1, positionMove.Item2]) =
+            (null, _table[positionCurrent.Item1, positionCurrent.Item2]);
+    }
+
+    /// <summary>
+    /// Movimento de convertir una pieza
+    /// </summary>
+    /// <param name="piece">Pieza</param>
+    /// <param name="position">Posicion</param>
+    internal void Convert(Piece piece, (int, int) position) => _table[position.Item1, position.Item2] = piece;
+
+    /// <summary>
+    /// Actualizar las posiciones de las piezas
+    /// </summary>
+    internal void ActPosition()
+    {
         for (int i = 0; i < _table.GetLength(0); i++)
         {
             for (int j = 0; j < _table.GetLength(1); j++)
+                if (_table[i, j] is not null)
+                    _table[i, j]!.Positions.Add((i, j));
+        }
+
+        CantTurns++;
+        Reset();
+    }
+
+    /// <summary>
+    /// Mostrar el historial del tablero
+    /// </summary>
+    /// <param name="ind">Indice del historial</param>
+    /// <returns>Tablero</returns>
+    public Piece?[,] HistoryTable(int ind)
+    {
+        Piece?[,] table = new Piece[8, 8];
+
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 8; j++)
             {
-                if(_table[i,j] is not null) _table[i,j]!.Positions.Add((i,j));
-                table[i, j] = _table[i, j];
+                if (_table[i, j] is not null)
+                {
+                    var aux = _table[i, j]!.Positions[ind];
+                    if (_table[i, j]!.Convert > ind) table[aux.Item1, aux.Item2] = new Pawn(_table[i, j]!.Color);
+                    else table[aux.Item1, aux.Item2] = _table[i, j];
+                }
             }
         }
 
-        return new Table(table);
+        foreach (var item in _captured)
+        {
+            if (ind < item.Positions.Count)
+            {
+                var aux = item.Positions[ind];
+                table[aux.Item1, aux.Item2] = item;
+            }
+        }
+
+        return table;
     }
 }

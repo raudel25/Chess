@@ -27,7 +27,7 @@ public class Positions : IEnumerable<(int, int)>
     /// Annadir una nueva posicion
     /// </summary>
     /// <param name="pos">Posicion para annadir</param>
-    public void Add((int, int) pos) => _positions.Add(pos);
+    internal void Add((int, int) pos) => _positions.Add(pos);
 
     /// <summary>
     /// Determina la posicion actual

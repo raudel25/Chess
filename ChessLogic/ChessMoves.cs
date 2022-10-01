@@ -1,6 +1,6 @@
 namespace ChessLogic;
 
-public class ChessMoves
+public static class ChessMoves
 {
     #region BasicMoves
 
@@ -10,14 +10,14 @@ public class ChessMoves
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles jugadas</returns>
-    public List<Play> Move(Piece piece, Table table)
+    public static List<Play> Move(Piece piece, Table table)
     {
         if (ConditionPawnToQueen(piece)) return new List<Play>();
 
         List<(int, int)> aux = PossibleMoves(piece, piece.Move(table), table);
         List<Play> possible = new List<Play>();
 
-        foreach (var item in aux) possible.Add(new Play(piece.Positions.Current, item, (-1, -1)));
+        foreach (var item in aux) possible.Add(new Play(piece.Positions.Current, item, (-1, -1),table));
 
         return possible;
     }
@@ -28,14 +28,14 @@ public class ChessMoves
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles jugadas</returns>
-    public List<Play> MoveCapture(Piece piece, Table table)
+    public static List<Play> MoveCapture(Piece piece, Table table)
     {
         if (ConditionPawnToQueen(piece)) return new List<Play>();
 
         List<(int, int)> aux = PossibleMoves(piece, piece.MoveCapture(table), table);
         List<Play> possible = new List<Play>();
 
-        foreach (var item in aux) possible.Add(new Play(piece.Positions.Current, item, item));
+        foreach (var item in aux) possible.Add(new Play(piece.Positions.Current, item, item,table));
 
         return possible;
     }
@@ -50,7 +50,7 @@ public class ChessMoves
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles jugadas</returns>
-    public List<PlayEnRock> MoveEnRock(Piece piece, Table table)
+    public static List<PlayEnRock> MoveEnRock(Piece piece, Table table)
     {
         if (!piece.NotMove() || piece is not King) return new List<PlayEnRock>();
 
@@ -66,7 +66,7 @@ public class ChessMoves
     /// <param name="ind">indice</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    private List<PlayEnRock> DeterminateEnRock(Table table, Piece piece, int ind)
+    private static List<PlayEnRock> DeterminateEnRock(Table table, Piece piece, int ind)
     {
         List<PlayEnRock> possible = new List<PlayEnRock>();
         if (table[ind, 0] is Rock && table[ind, 1] is null && table[ind, 2] is null)
@@ -74,7 +74,7 @@ public class ChessMoves
             if (!table[ind, 0]!.NotMove()) return possible;
 
             if (!TreatPosition(table, (ind, 1), piece.Color) && !TreatPosition(table, (ind, 2), piece.Color))
-                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 0), (ind, 1), (ind, 2)));
+                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 0), (ind, 1), (ind, 2),table));
         }
 
         if (table[ind, 7] is Rock && table[ind, 6] is null && table[ind, 5] is null && table[ind, 4] is null)
@@ -83,7 +83,7 @@ public class ChessMoves
 
             if (!TreatPosition(table, (ind, 6), piece.Color) && !TreatPosition(table, (ind, 5), piece.Color) &&
                 !TreatPosition(table, (ind, 4), piece.Color))
-                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 6), (ind, 5), (ind, 4)));
+                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 6), (ind, 5), (ind, 4),table));
         }
 
         return possible;
@@ -95,7 +95,7 @@ public class ChessMoves
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de jugadas</returns>
-    public List<PlayPawnToQueen> MovePawnToQueen(Piece piece, Table table)
+    public static List<PlayPawnToQueen> MovePawnToQueen(Piece piece, Table table)
     {
         if (!ConditionPawnToQueen(piece)) return new List<PlayPawnToQueen>();
 
@@ -103,7 +103,7 @@ public class ChessMoves
 
         foreach (var item in PossibleMoves(piece, piece.Move(table), table)
                      .Concat(PossibleMoves(piece, piece.MoveCapture(table), table)))
-            possible.Add(new PlayPawnToQueen(piece.Color, piece.Positions.Current, item, item));
+            possible.Add(new PlayPawnToQueen((Pawn) piece, piece.Positions.Current, item, item,table));
 
         return possible;
     }
@@ -113,13 +113,13 @@ public class ChessMoves
     /// </summary>
     /// <param name="piece">Pieza</param>
     /// <returns>Determina la condicion para que un peon pueda coronar</returns>
-    private bool ConditionPawnToQueen(Piece piece)
+    private static bool ConditionPawnToQueen(Piece piece)
     {
         if (piece is not Pawn) return false;
 
-        if (piece.Color == Color.White && piece.Positions.Current.Item1 == 1) return true;
+        if (piece.Color == Color.White && piece.Positions.Current.Item1 == 7) return true;
 
-        if (piece.Color == Color.Black && piece.Positions.Current.Item1 == 7) return true;
+        if (piece.Color == Color.Black && piece.Positions.Current.Item1 == 1) return true;
 
         return false;
     }
@@ -130,7 +130,7 @@ public class ChessMoves
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public List<Play> MovePawnToStep(Piece piece, Table table)
+    public static List<Play> MovePawnToStep(Piece piece, Table table)
     {
         List<Play> possible = new List<Play>();
 
@@ -148,14 +148,14 @@ public class ChessMoves
             if (aux)
             {
                 if (!PossibleJake(piece, result1, result2, positionKing, table))
-                    possible.Add(new Play(piece.Positions.Current, result1, result2));
+                    possible.Add(new Play(piece.Positions.Current, result1, result2,table));
             }
 
             aux = DecidePawnToStep(current, (0, -1), directionMove, table, ref result1, ref result2);
             if (aux)
             {
                 if (!PossibleJake(piece, result1, result2, positionKing, table))
-                    possible.Add(new Play(piece.Positions.Current, result1, result2));
+                    possible.Add(new Play(piece.Positions.Current, result1, result2,table));
             }
         }
 
@@ -172,7 +172,7 @@ public class ChessMoves
     /// <param name="result1">Posicion final</param>
     /// <param name="result2">Posicion del peon a capturar</param>
     /// <returns>Decide si es posible el peon al paso</returns>
-    private bool DecidePawnToStep((int, int) current, (int, int) directionPaw, (int, int) directionMove,
+    private static bool DecidePawnToStep((int, int) current, (int, int) directionPaw, (int, int) directionMove,
         Table table, ref (int, int) result1, ref (int, int) result2)
     {
         (int, int) positionPaw = Moves.SumPosition(current, directionPaw);
@@ -206,7 +206,7 @@ public class ChessMoves
     /// <param name="table">Tablero</param>
     /// <param name="color">Color</param>
     /// <returns>Determina si el rey esta en jake</returns>
-    public bool Jake(Table table, Color color) => TreatPosition(table, PositionKing(table, color), color);
+    public static bool Jake(Table table, Color color) => TreatPosition(table, PositionKing(table, color), color);
 
     /// <summary>
     /// Determina si una casilla esta amenazada
@@ -215,10 +215,10 @@ public class ChessMoves
     /// <param name="position">Casilla</param>
     /// <param name="color">Color del jugador</param>
     /// <returns>Determina si una casilla esta amenazada</returns>
-    private bool TreatPosition(Table table, (int, int) position, Color color) =>
+    private static bool TreatPosition(Table table, (int, int) position, Color color) =>
         TreatPosition(table, position, color, false);
 
-    private bool TreatPosition(Table table, (int, int) position, Color color, bool singleMove)
+    private static bool TreatPosition(Table table, (int, int) position, Color color, bool singleMove)
     {
         for (int i = 0; i < table.Rows; i++)
         {
@@ -248,7 +248,7 @@ public class ChessMoves
     /// <param name="table">Tablero</param>
     /// <param name="piece">Pieza</param>
     /// <returns>Lista de posibles jugadas</returns>
-    private List<(int, int)> PossibleMoves(Piece piece, List<(int, int)> possible, Table table)
+    private static List<(int, int)> PossibleMoves(Piece piece, List<(int, int)> possible, Table table)
     {
         List<(int, int)> possibleAct = new List<(int, int)>();
 
@@ -272,7 +272,7 @@ public class ChessMoves
     /// <param name="positionKing">Posicion del rey</param>
     /// <param name="table">Tablero</param>
     /// <returns>Determina si El rey queda en jake para un movimiento</returns>
-    private bool PossibleJake(Piece piece, (int, int) position, (int, int) positionCapture, (int, int) positionKing,
+    private static bool PossibleJake(Piece piece, (int, int) position, (int, int) positionCapture, (int, int) positionKing,
         Table table)
     {
         bool possible = false;
@@ -296,7 +296,7 @@ public class ChessMoves
     /// <param name="table">Tablero</param>
     /// <param name="color">Color</param>
     /// <returns>Determina la posicion del Rey</returns>
-    private (int, int) PositionKing(Table table, Color color)
+    private static (int, int) PositionKing(Table table, Color color)
     {
         for (int i = 0; i < table.Rows; i++)
         {
