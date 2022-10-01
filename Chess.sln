@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessServer", "ChessServer\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{8E7E8501-3529-4101-A259-1B53DEA0D512}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessEngine", "ChessEngine\ChessEngine.csproj", "{F76955DE-7F9C-4B56-848D-5FF51558167E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLogic", "ChessLogic\ChessLogic.csproj", "{F76955DE-7F9C-4B56-848D-5FF51558167E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

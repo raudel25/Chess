@@ -1,4 +1,4 @@
-﻿using ChessEngine;
+﻿using ChessLogic;
 
 Table t=new Table();
 

@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace ChessEngine;
+namespace ChessLogic;
 
 public class Positions : IEnumerable<(int, int)>
 {

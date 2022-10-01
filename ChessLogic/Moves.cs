@@ -1,4 +1,4 @@
-namespace ChessEngine;
+namespace ChessLogic;
 
 public class Moves
 {
