@@ -1,30 +1,56 @@
 namespace ChessEngine;
 
-public class JudgeMoves
+public class ComplexMoves
 {
     /// <summary>
     /// Determina el movimiento de una pieza
     /// </summary>
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
-    /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int)> Move(Piece piece, Table table) => ConditionPawnToQueen(piece)
-        ? new List<(int, int)>()
-        : PossibleMoves(piece, piece.Move(table), table);
+    /// <returns>Lista de posibles jugadas</returns>
+    public List<Play> Move(Piece piece, Table table)
+    {
+        if (ConditionPawnToQueen(piece)) return new List<Play>();
+
+        List<(int, int)> aux = PossibleMoves(piece, piece.Move(table), table);
+        List<Play> possible = new List<Play>();
+
+        foreach (var item in aux) possible.Add(new Play(piece.Positions.Current, item, (-1, -1)));
+
+        return possible;
+    }
+    
+    /// <summary>
+    /// Determina el movimiento de captura de una pieza
+    /// </summary>
+    /// <param name="piece">Pieza</param>
+    /// <param name="table">Tablero</param>
+    /// <returns>Lista de posibles jugadas</returns>
+    public List<Play> MoveCapture(Piece piece, Table table)
+    {
+        if (ConditionPawnToQueen(piece)) return new List<Play>();
+
+        List<(int, int)> aux = PossibleMoves(piece, piece.MoveCapture(table), table);
+        List<Play> possible = new List<Play>();
+
+        foreach (var item in aux) possible.Add(new Play(piece.Positions.Current, item, item));
+
+        return possible;
+    }
 
     /// <summary>
     /// Determina el enroque
     /// </summary>
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
-    /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int, int, int)> MoveEnRock(Piece piece, Table table)
+    /// <returns>Lista de posibles jugadas</returns>
+    public List<PlayEnRock> MoveEnRock(Piece piece, Table table)
     {
-        if (!piece.NotMove() || piece is not King) return new List<(int, int, int, int)>();
+        if (!piece.NotMove() || piece is not King) return new List<PlayEnRock>();
 
-        if (piece.Color == Color.White) return DeterminateEnRock(table, piece.Color, 0);
+        if (piece.Color == Color.White) return DeterminateEnRock(table, piece, 0);
 
-        return DeterminateEnRock(table, piece.Color, 7);
+        return DeterminateEnRock(table, piece, 7);
     }
 
     /// <summary>
@@ -32,21 +58,19 @@ public class JudgeMoves
     /// </summary>
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
-    /// <returns>Lista de casillas</returns>
-    public List<(int, int)> MovePawnToQueen(Piece piece, Table table) => ConditionPawnToQueen(piece)
-        ? PossibleMoves(piece, piece.Move(table), table)
-            .Concat(PossibleMoves(piece, piece.MoveCapture(table), table)).ToList()
-        : new List<(int, int)>();
+    /// <returns>Lista de jugadas</returns>
+    public List<PlayPawnToQueen> MovePawnToQueen(Piece piece, Table table)
+    {
+        if (!ConditionPawnToQueen(piece)) return new List<PlayPawnToQueen>();
 
-    /// <summary>
-    /// Determina el movimiento de captura de una pieza
-    /// </summary>
-    /// <param name="piece">Pieza</param>
-    /// <param name="table">Tablero</param>
-    /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int)> MoveCapture(Piece piece, Table table) => ConditionPawnToQueen(piece)
-        ? new List<(int, int)>()
-        : PossibleMoves(piece, piece.Move(table), table);
+        List<PlayPawnToQueen> possible = new List<PlayPawnToQueen>();
+
+        foreach (var item in PossibleMoves(piece, piece.Move(table), table)
+                     .Concat(PossibleMoves(piece, piece.MoveCapture(table), table)))
+            possible.Add(new PlayPawnToQueen(piece.Color, piece.Positions.Current, item, item));
+
+        return possible;
+    }
 
     /// <summary>
     /// Determina el movimiento del peon al paso
@@ -54,9 +78,9 @@ public class JudgeMoves
     /// <param name="piece">Pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int, int, int)> MovePawnToStep(Piece piece, Table table)
+    public List<Play> MovePawnToStep(Piece piece, Table table)
     {
-        List<(int, int, int, int)> possible = new List<(int, int, int, int)>();
+        List<Play> possible = new List<Play>();
 
         if (piece is not Pawn) return possible;
         (int, int) current = piece.Positions.Current;
@@ -67,18 +91,19 @@ public class JudgeMoves
             (int, int) directionMove = piece.Color == Color.White ? (1, 0) : (-1, 0);
             (int, int) positionKing = PositionKing(table, piece.Color);
 
-            var aux = DecidePawnToStep(current, (0, 1), directionMove, table);
-            if (aux != (-1, -1, -1, -1))
+            ((int, int) result1, (int, int) result2) = ((0, 0), (0, 0));
+            bool aux = DecidePawnToStep(current, (0, 1), directionMove, table, ref result1, ref result2);
+            if (aux)
             {
-                if (!PossibleJake(piece, (aux.Item1, aux.Item2), (aux.Item3, aux.Item4), positionKing, table))
-                    possible.Add(aux);
+                if (!PossibleJake(piece, result1, result2, positionKing, table))
+                    possible.Add(new Play(piece.Positions.Current, result1, result2));
             }
 
-            aux = DecidePawnToStep(current, (0, -1), directionMove, table);
-            if (aux != (-1, -1, -1, -1))
+            aux = DecidePawnToStep(current, (0, -1), directionMove, table, ref result1, ref result2);
+            if (aux)
             {
-                if (!PossibleJake(piece, (aux.Item1, aux.Item2), (aux.Item3, aux.Item4), positionKing, table))
-                    possible.Add(aux);
+                if (!PossibleJake(piece, result1, result2, positionKing, table))
+                    possible.Add(new Play(piece.Positions.Current, result1, result2));
             }
         }
 
@@ -126,9 +151,11 @@ public class JudgeMoves
     /// <param name="directionPaw">Direccion del peon a capturar</param>
     /// <param name="directionMove">Direccion del movimiento</param>
     /// <param name="table">Tablero</param>
-    /// <returns>Posicion final y peon a capturar</returns>
-    private (int, int, int, int) DecidePawnToStep((int, int) current, (int, int) directionPaw, (int, int) directionMove,
-        Table table)
+    /// <param name="result1">Posicion final</param>
+    /// <param name="result2">Posicion del peon a capturar</param>
+    /// <returns>Decide si es posible el peon al paso</returns>
+    private bool DecidePawnToStep((int, int) current, (int, int) directionPaw, (int, int) directionMove,
+        Table table, ref (int, int) result1, ref (int, int) result2)
     {
         (int, int) positionPaw = Moves.SumPosition(current, directionPaw);
         (int, int) positionMove = Moves.SumPosition(positionPaw, directionMove);
@@ -139,11 +166,16 @@ public class JudgeMoves
             {
                 if (table[positionPaw.Item1, positionPaw.Item2]!.NotMove(1) &&
                     table[positionMove.Item1, positionMove.Item2] is null)
-                    return (positionMove.Item1, positionMove.Item2, positionPaw.Item1, positionPaw.Item2);
+                {
+                    (result1, result2) = ((positionMove.Item1, positionMove.Item2),
+                        (positionPaw.Item1, positionPaw.Item2));
+
+                    return true;
+                }
             }
         }
 
-        return (-1, -1, -1, -1);
+        return false;
     }
 
     private bool TreatPosition(Table table, (int, int) position, Color color, bool singleMove)
@@ -157,7 +189,9 @@ public class JudgeMoves
                     if (table[i, j]!.Color == color)
                     {
                         List<(int, int)> positions =
-                            singleMove ? table[i, j]!.MoveCapture(table) : MoveCapture(table[i, j]!, table);
+                            singleMove
+                                ? table[i, j]!.MoveCapture(table)
+                                : PossibleMoves(table[i, j]!, table[i, j]!.MoveCapture(table), table);
                         if (positions.Contains(position)) return true;
                     }
                 }
@@ -241,27 +275,28 @@ public class JudgeMoves
     /// <summary>
     /// Determina el enroque
     /// </summary>
-    /// <param name="color">Color</param>
+    /// <param name="piece">Piece</param>
     /// <param name="ind">indice</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    private List<(int, int, int, int)> DeterminateEnRock(Table table, Color color, int ind)
+    private List<PlayEnRock> DeterminateEnRock(Table table, Piece piece, int ind)
     {
-        List<(int, int, int, int)> possible = new List<(int, int, int, int)>();
+        List<PlayEnRock> possible = new List<PlayEnRock>();
         if (table[ind, 0] is Rock && table[ind, 1] is null && table[ind, 2] is null)
         {
             if (!table[ind, 0]!.NotMove()) return possible;
 
-            if (!TreatPosition(table, (ind, 1), color) && !TreatPosition(table, (ind, 2), color))
-                possible.Add((ind, 1, ind, 2));
+            if (!TreatPosition(table, (ind, 1), piece.Color) && !TreatPosition(table, (ind, 2), piece.Color))
+                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 0), (ind, 1), (ind, 2)));
         }
 
         if (table[ind, 7] is Rock && table[ind, 6] is null && table[ind, 5] is null && table[ind, 4] is null)
         {
             if (!table[ind, 7]!.NotMove()) return possible;
 
-            if (!TreatPosition(table, (ind, 6), color) && !TreatPosition(table, (ind, 5), color) &&
-                !TreatPosition(table, (ind, 4), color)) possible.Add((ind, 5, ind, 4));
+            if (!TreatPosition(table, (ind, 6), piece.Color) && !TreatPosition(table, (ind, 5), piece.Color) &&
+                !TreatPosition(table, (ind, 4), piece.Color))
+                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 6), (ind, 5), (ind, 4)));
         }
 
         return possible;

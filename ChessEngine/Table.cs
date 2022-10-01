@@ -38,6 +38,13 @@ public class Table
         Reset();
     }
 
+    private Table(Piece?[,] table)
+    {
+        this._table = table;
+        this.Copy = new Piece[8, 8];
+        Reset();
+    }
+
     /// <summary>
     /// Distribuir las posiciones iniciales del tablero
     /// </summary>
@@ -78,5 +85,29 @@ public class Table
         {
             for (int j = 0; j < _table.GetLength(1); j++) Copy[i, j] = _table[i, j];
         }
+    }
+
+    public void Capture((int, int) position) => _table[position.Item1, position.Item2] = null;
+    
+    public void Move((int, int) positionCurrent, (int, int) positionMove) =>
+        (_table[positionCurrent.Item1, positionCurrent.Item2], _table[positionMove.Item1, positionMove.Item2]) =
+        (null, _table[positionCurrent.Item1, positionCurrent.Item2]);
+
+    public void Convert(Piece piece, (int, int) position) => _table[position.Item1, position.Item2] = piece;
+
+    public Table ActPosition()
+    {
+        Piece?[,] table = new Piece[_table.GetLength(0), _table.GetLength(1)];
+
+        for (int i = 0; i < _table.GetLength(0); i++)
+        {
+            for (int j = 0; j < _table.GetLength(1); j++)
+            {
+                if(_table[i,j] is not null) _table[i,j]!.Positions.Add((i,j));
+                table[i, j] = _table[i, j];
+            }
+        }
+
+        return new Table(table);
     }
 }
