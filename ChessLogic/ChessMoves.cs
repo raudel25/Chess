@@ -1,7 +1,9 @@
 namespace ChessLogic;
 
-public class ComplexMoves
+public class ChessMoves
 {
+    #region BasicMoves
+
     /// <summary>
     /// Determina el movimiento de una pieza
     /// </summary>
@@ -19,7 +21,7 @@ public class ComplexMoves
 
         return possible;
     }
-    
+
     /// <summary>
     /// Determina el movimiento de captura de una pieza
     /// </summary>
@@ -38,6 +40,10 @@ public class ComplexMoves
         return possible;
     }
 
+    #endregion
+
+    #region ComplexMoves
+
     /// <summary>
     /// Determina el enroque
     /// </summary>
@@ -51,6 +57,36 @@ public class ComplexMoves
         if (piece.Color == Color.White) return DeterminateEnRock(table, piece, 0);
 
         return DeterminateEnRock(table, piece, 7);
+    }
+
+    /// <summary>
+    /// Determina el enroque
+    /// </summary>
+    /// <param name="piece">Piece</param>
+    /// <param name="ind">indice</param>
+    /// <param name="table">Tablero</param>
+    /// <returns>Lista de posibles casillas</returns>
+    private List<PlayEnRock> DeterminateEnRock(Table table, Piece piece, int ind)
+    {
+        List<PlayEnRock> possible = new List<PlayEnRock>();
+        if (table[ind, 0] is Rock && table[ind, 1] is null && table[ind, 2] is null)
+        {
+            if (!table[ind, 0]!.NotMove()) return possible;
+
+            if (!TreatPosition(table, (ind, 1), piece.Color) && !TreatPosition(table, (ind, 2), piece.Color))
+                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 0), (ind, 1), (ind, 2)));
+        }
+
+        if (table[ind, 7] is Rock && table[ind, 6] is null && table[ind, 5] is null && table[ind, 4] is null)
+        {
+            if (!table[ind, 7]!.NotMove()) return possible;
+
+            if (!TreatPosition(table, (ind, 6), piece.Color) && !TreatPosition(table, (ind, 5), piece.Color) &&
+                !TreatPosition(table, (ind, 4), piece.Color))
+                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 6), (ind, 5), (ind, 4)));
+        }
+
+        return possible;
     }
 
     /// <summary>
@@ -70,6 +106,22 @@ public class ComplexMoves
             possible.Add(new PlayPawnToQueen(piece.Color, piece.Positions.Current, item, item));
 
         return possible;
+    }
+
+    /// <summary>
+    /// Determina la condicion para que un peon pueda coronar
+    /// </summary>
+    /// <param name="piece">Pieza</param>
+    /// <returns>Determina la condicion para que un peon pueda coronar</returns>
+    private bool ConditionPawnToQueen(Piece piece)
+    {
+        if (piece is not Pawn) return false;
+
+        if (piece.Color == Color.White && piece.Positions.Current.Item1 == 1) return true;
+
+        if (piece.Color == Color.Black && piece.Positions.Current.Item1 == 7) return true;
+
+        return false;
     }
 
     /// <summary>
@@ -111,40 +163,6 @@ public class ComplexMoves
     }
 
     /// <summary>
-    /// Determina si el rey esta en jake
-    /// </summary>
-    /// <param name="table">Tablero</param>
-    /// <param name="color">Color</param>
-    /// <returns>Determina si el rey esta en jake</returns>
-    public bool Jake(Table table, Color color) => TreatPosition(table, PositionKing(table, color), color);
-
-    /// <summary>
-    /// Determina si una casilla esta amenazada
-    /// </summary>
-    /// <param name="table">tablero</param>
-    /// <param name="position">Casilla</param>
-    /// <param name="color">Color del jugador</param>
-    /// <returns>Determina si una casilla esta amenazada</returns>
-    private bool TreatPosition(Table table, (int, int) position, Color color) =>
-        TreatPosition(table, position, color, false);
-
-    /// <summary>
-    /// Determina la condicion para que un peon pueda coronar
-    /// </summary>
-    /// <param name="piece">Pieza</param>
-    /// <returns>Determina la condicion para que un peon pueda coronar</returns>
-    private bool ConditionPawnToQueen(Piece piece)
-    {
-        if (piece is not Pawn) return false;
-
-        if (piece.Color == Color.White && piece.Positions.Current.Item1 == 1) return true;
-
-        if (piece.Color == Color.Black && piece.Positions.Current.Item1 == 7) return true;
-
-        return false;
-    }
-
-    /// <summary>
     /// Decide si es posible el peon al paso
     /// </summary>
     /// <param name="current">Posicion actual</param>
@@ -177,6 +195,28 @@ public class ComplexMoves
 
         return false;
     }
+
+    #endregion
+
+    #region JakePositions
+
+    /// <summary>
+    /// Determina si el rey esta en jake
+    /// </summary>
+    /// <param name="table">Tablero</param>
+    /// <param name="color">Color</param>
+    /// <returns>Determina si el rey esta en jake</returns>
+    public bool Jake(Table table, Color color) => TreatPosition(table, PositionKing(table, color), color);
+
+    /// <summary>
+    /// Determina si una casilla esta amenazada
+    /// </summary>
+    /// <param name="table">tablero</param>
+    /// <param name="position">Casilla</param>
+    /// <param name="color">Color del jugador</param>
+    /// <returns>Determina si una casilla esta amenazada</returns>
+    private bool TreatPosition(Table table, (int, int) position, Color color) =>
+        TreatPosition(table, position, color, false);
 
     private bool TreatPosition(Table table, (int, int) position, Color color, bool singleMove)
     {
@@ -272,33 +312,5 @@ public class ComplexMoves
         return (-1, -1);
     }
 
-    /// <summary>
-    /// Determina el enroque
-    /// </summary>
-    /// <param name="piece">Piece</param>
-    /// <param name="ind">indice</param>
-    /// <param name="table">Tablero</param>
-    /// <returns>Lista de posibles casillas</returns>
-    private List<PlayEnRock> DeterminateEnRock(Table table, Piece piece, int ind)
-    {
-        List<PlayEnRock> possible = new List<PlayEnRock>();
-        if (table[ind, 0] is Rock && table[ind, 1] is null && table[ind, 2] is null)
-        {
-            if (!table[ind, 0]!.NotMove()) return possible;
-
-            if (!TreatPosition(table, (ind, 1), piece.Color) && !TreatPosition(table, (ind, 2), piece.Color))
-                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 0), (ind, 1), (ind, 2)));
-        }
-
-        if (table[ind, 7] is Rock && table[ind, 6] is null && table[ind, 5] is null && table[ind, 4] is null)
-        {
-            if (!table[ind, 7]!.NotMove()) return possible;
-
-            if (!TreatPosition(table, (ind, 6), piece.Color) && !TreatPosition(table, (ind, 5), piece.Color) &&
-                !TreatPosition(table, (ind, 4), piece.Color))
-                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 6), (ind, 5), (ind, 4)));
-        }
-
-        return possible;
-    }
+    #endregion
 }
