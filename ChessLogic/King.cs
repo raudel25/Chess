@@ -6,7 +6,7 @@ public class King : Piece
 
     protected override Moves Moves { get; }
 
-    public King(Color color) : base(color)
+    internal King(Color color) : base(color)
     {
         this.Moves = new Moves(new[] {1, 3, 5, 7},new[] {1, 3, 5, 7}, color,true);
     }

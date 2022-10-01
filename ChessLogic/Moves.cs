@@ -33,7 +33,7 @@ public class Moves
         (-1, -2), (-2, -1), (-2, 1), (-1, 2), (1, 2), (2, 1), (2, -1), (1, -2)
     };
 
-    public Moves(int[] validMove, int[] validCapture, Color color, bool oneMove = false)
+    internal Moves(int[] validMove, int[] validCapture, Color color, bool oneMove = false)
     {
         this._validMove = validMove;
         this._validCapture = validCapture;

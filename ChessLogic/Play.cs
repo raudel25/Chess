@@ -8,7 +8,7 @@ public class Play
 
     public (int, int) PositionCapture { get; private set; }
 
-    public Play((int, int) positionCurrent, (int, int) positionMove, (int, int) positionCapture)
+    internal Play((int, int) positionCurrent, (int, int) positionMove, (int, int) positionCapture)
     {
         this.PositionCurrent = positionCurrent;
         this.PositionMove = positionMove;
@@ -26,7 +26,7 @@ public class PlayEnRock : Play
 {
     private readonly Play _playRock;
 
-    public PlayEnRock((int, int) kingCurrent, (int, int) rockCurrent, (int, int) kingMove, (int, int) rockMove) : base(
+    internal PlayEnRock((int, int) kingCurrent, (int, int) rockCurrent, (int, int) kingMove, (int, int) rockMove) : base(
         kingCurrent, kingMove, (-1, -1))
     {
         _playRock = new Play(rockCurrent, rockMove, (-1, -1));
@@ -43,7 +43,7 @@ public class PlayPawnToQueen : Play
 {
     public Piece Piece { get; set; }
 
-    public PlayPawnToQueen(Color color, (int, int) positionCurrent, (int, int) positionMove,
+    internal PlayPawnToQueen(Color color, (int, int) positionCurrent, (int, int) positionMove,
         (int, int) positionCapture) : base(
         positionCurrent, positionMove, positionCapture)
     {

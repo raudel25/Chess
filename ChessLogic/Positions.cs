@@ -46,7 +46,7 @@ public class Positions : IEnumerable<(int, int)>
 
     private List<(int, int)> _positions;
 
-    public Positions()
+    internal Positions()
     {
         this._positions = new List<(int, int)>();
     }

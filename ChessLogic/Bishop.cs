@@ -6,7 +6,7 @@ public class Bishop : Piece
 
     protected override Moves Moves { get; }
 
-    public Bishop(Color color) : base(color)
+    internal Bishop(Color color) : base(color)
     {
         this.Moves = new Moves(new[] {0, 2, 4, 6},new[] {0, 2, 4, 6},color);
     }
