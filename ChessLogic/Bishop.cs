@@ -15,4 +15,6 @@ public class Bishop : Piece
     {
         this.Moves = new Moves(new[] {0, 2, 4, 6}, new[] {0, 2, 4, 6}, color);
     }
+    
+    public override Piece Clone() => new Bishop(this.Color,this.Positions.Clone());
 }

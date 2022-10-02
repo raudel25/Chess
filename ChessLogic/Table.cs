@@ -5,7 +5,7 @@ public class Table
     /// <summary>
     /// Tablero
     /// </summary>
-    private readonly Piece?[,] _table;
+    protected Piece?[,] TablePieces;
 
     /// <summary>
     /// Lista de piezas capturadas
@@ -21,12 +21,12 @@ public class Table
     /// Cantidad de columnas
     /// </summary>
     public int Columns => 8;
-    
+
     /// <summary>
     /// Cantidad de turnos
     /// </summary>
     public int CantTurns { get; private set; }
-    
+
     /// <summary>
     /// Turno inmediato
     /// </summary>
@@ -35,25 +35,29 @@ public class Table
     /// <summary>
     /// Copia del tablero
     /// </summary>
-    public Piece?[,] Copy { get; private set; }
+    //public Piece?[,] Copy { get; private set; }
 
     public Piece? this[int i, int j]
     {
         get
         {
             if (i < 0 || j < 0 || i >= 8 || j >= 8) throw new IndexOutOfRangeException();
-            return _table[i, j];
+            return TablePieces[i, j];
         }
     }
 
     public Table()
     {
-        this._table = StartPosition();
-        this.Copy = new Piece[8, 8];
+        this.TablePieces = StartPosition();
         this._captured = new List<Piece>();
         this.Turn = Color.White;
-        
-        Reset();
+    }
+
+    protected Table(Piece?[,] table)
+    {
+        this.TablePieces = table;
+        this._captured = new List<Piece>();
+        this.Turn = Color.White;
     }
 
     /// <summary>
@@ -64,8 +68,8 @@ public class Table
     {
         Piece?[,] table = new Piece[8, 8];
 
-        (table[0, 0], table[0, 7]) = (new Rock(Color.White),new Rock(Color.White));
-        (table[7, 0], table[7, 7]) = (new Rock(Color.Black),new Rock(Color.Black));
+        (table[0, 0], table[0, 7]) = (new Rock(Color.White), new Rock(Color.White));
+        (table[7, 0], table[7, 7]) = (new Rock(Color.Black), new Rock(Color.Black));
         (table[0, 1], table[0, 6]) = (new Knight(Color.White), new Knight(Color.White));
         (table[7, 1], table[7, 6]) = (new Knight(Color.Black), new Knight(Color.Black));
         (table[0, 2], table[0, 5]) = (new Bishop(Color.White), new Bishop(Color.White));
@@ -83,23 +87,14 @@ public class Table
         {
             for (int j = 0; j < 8; j++)
             {
-                if(table[i,j] is not null) table[i,j]!.Positions.Add((i,j));
+                if (table[i, j] is not null) table[i, j]!.Positions.Add((i, j));
             }
         }
 
         return table;
     }
 
-    /// <summary>
-    /// Resetear la copia
-    /// </summary>
-    public void Reset()
-    {
-        for (int i = 0; i < _table.GetLength(0); i++)
-        {
-            for (int j = 0; j < _table.GetLength(1); j++) Copy[i, j] = _table[i, j];
-        }
-    }
+    public TableCopy Copy() => new TableCopy(TablePieces);
 
     /// <summary>
     /// Movimiento de captura
@@ -107,8 +102,8 @@ public class Table
     /// <param name="position">Posicion</param>
     internal void Capture((int, int) position)
     {
-        _captured.Add(_table[position.Item1, position.Item2]!);
-        _table[position.Item1, position.Item2] = null;
+        _captured.Add(TablePieces[position.Item1, position.Item2]!);
+        TablePieces[position.Item1, position.Item2] = null;
     }
 
     /// <summary>
@@ -118,9 +113,9 @@ public class Table
     /// <param name="positionMove">Posicion para moverse</param>
     internal void Move((int, int) positionCurrent, (int, int) positionMove)
     {
-        Turn = _table[positionCurrent.Item1, positionCurrent.Item2]!.Color == Color.White ? Color.Black : Color.White;
-        (_table[positionCurrent.Item1, positionCurrent.Item2], _table[positionMove.Item1, positionMove.Item2]) =
-            (null, _table[positionCurrent.Item1, positionCurrent.Item2]);
+        Turn = TablePieces[positionCurrent.Item1, positionCurrent.Item2]!.Color == Color.White ? Color.Black : Color.White;
+        (TablePieces[positionCurrent.Item1, positionCurrent.Item2], TablePieces[positionMove.Item1, positionMove.Item2]) =
+            (null, TablePieces[positionCurrent.Item1, positionCurrent.Item2]);
     }
 
     /// <summary>
@@ -128,22 +123,21 @@ public class Table
     /// </summary>
     /// <param name="piece">Pieza</param>
     /// <param name="position">Posicion</param>
-    internal void Convert(Piece piece, (int, int) position) => _table[position.Item1, position.Item2] = piece;
+    internal void Convert(Piece piece, (int, int) position) => TablePieces[position.Item1, position.Item2] = piece;
 
     /// <summary>
     /// Actualizar las posiciones de las piezas
     /// </summary>
-    internal void ActPosition()
+    internal virtual void ActPosition()
     {
-        for (int i = 0; i < _table.GetLength(0); i++)
+        for (int i = 0; i < TablePieces.GetLength(0); i++)
         {
-            for (int j = 0; j < _table.GetLength(1); j++)
-                if (_table[i, j] is not null)
-                    _table[i, j]!.Positions.Add((i, j));
+            for (int j = 0; j < TablePieces.GetLength(1); j++)
+                if (TablePieces[i, j] is not null)
+                    TablePieces[i, j]!.Positions.Add((i, j));
         }
 
         CantTurns++;
-        Reset();
     }
 
     /// <summary>
@@ -159,11 +153,11 @@ public class Table
         {
             for (int j = 0; j < 8; j++)
             {
-                if (_table[i, j] is not null)
+                if (TablePieces[i, j] is not null)
                 {
-                    var aux = _table[i, j]!.Positions[ind];
-                    if (_table[i, j]!.Convert > ind) table[aux.Item1, aux.Item2] = new Pawn(_table[i, j]!.Color);
-                    else table[aux.Item1, aux.Item2] = _table[i, j];
+                    var aux = TablePieces[i, j]!.Positions[ind];
+                    if (TablePieces[i, j]!.Convert > ind) table[aux.Item1, aux.Item2] = new Pawn(TablePieces[i, j]!.Color);
+                    else table[aux.Item1, aux.Item2] = TablePieces[i, j];
                 }
             }
         }

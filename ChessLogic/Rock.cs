@@ -15,4 +15,6 @@ public class Rock : Piece
     {
         this.Moves = new Moves(new[] {1, 3, 5, 7}, new[] {1, 3, 5, 7}, color);
     }
+
+    public override Piece Clone() => new Rock(this.Color,this.Positions.Clone());
 }

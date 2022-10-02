@@ -10,4 +10,11 @@ public class King : Piece
     {
         this.Moves = new Moves(new[] {1, 3, 5, 7},new[] {1, 3, 5, 7}, color,true);
     }
+    
+    private King(Color color,Positions positions) : base(color,positions)
+    {
+        this.Moves = new Moves(new[] {1, 3, 5, 7},new[] {1, 3, 5, 7}, color,true);
+    }
+    
+    public override Piece Clone() => new King(this.Color,this.Positions.Clone());
 }

@@ -44,10 +44,17 @@ public class Positions : IEnumerable<(int, int)>
 
     public int Count => _positions.Count;
 
-    private List<(int, int)> _positions;
+    private readonly List<(int, int)> _positions;
 
     internal Positions()
     {
         this._positions = new List<(int, int)>();
     }
+    
+    private Positions(List<(int,int)> positions)
+    {
+        this._positions = positions;
+    }
+
+    internal Positions Clone() => new Positions(_positions.ToList());
 }

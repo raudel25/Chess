@@ -309,13 +309,15 @@ public static class ChessMoves
         bool possible = false;
         (int, int) current = piece.Positions.Current;
 
+        TableCopy copy = table.Copy();
+        
         Piece? aux = table[positionCapture.Item1, positionCapture.Item2];
-        (table.Copy[position.Item1, position.Item2], table.Copy[current.Item1, current.Item2]) =
+        (copy[position.Item1, position.Item2], copy[current.Item1, current.Item2]) =
             (table[current.Item1, current.Item2], null);
 
-        if (TreatPosition(table, positionKing, piece.Color, true)) possible = true;
+        if (TreatPosition(copy, positionKing, piece.Color, true)) possible = true;
 
-        (table.Copy[positionCapture.Item1, positionCapture.Item2], table.Copy[current.Item1, current.Item2]) =
+        (copy[positionCapture.Item1, positionCapture.Item2], copy[current.Item1, current.Item2]) =
             (aux, table[position.Item1, position.Item2]);
 
         return possible;
