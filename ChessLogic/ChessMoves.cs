@@ -5,6 +5,36 @@ public static class ChessMoves
     #region BasicMoves
 
     /// <summary>
+    /// Determina todos los posibles movimientos de un jugador
+    /// </summary>
+    /// <param name="color">Color del jugador</param>
+    /// <param name="table">Tablero</param>
+    /// <returns>Posibles movimientos</returns>
+    public static List<Play> PossibleMoves(Color color, Table table)
+    {
+        IEnumerable<Play> possible = new List<Play>();
+        for (int i = 0; i < table.Rows; i++)
+        {
+            for (int j = 0; j < table.Columns; j++)
+            {
+                if (table[i, j] is not null) possible = possible.Concat(PossibleMoves(table[i, j]!, table));
+            }
+        }
+
+        return possible.ToList();
+    }
+
+    /// <summary>
+    /// Determina todos los posibles movimientos de una pieza
+    /// </summary>
+    /// <param name="piece">Pieza</param>
+    /// <param name="table">Tablero</param>
+    /// <returns>Posibles movimientos</returns>
+    public static List<Play> PossibleMoves(Piece piece, Table table) =>
+        Move(piece, table).Concat(MoveCapture(piece, table)).Concat(MoveEnRock(piece, table))
+            .Concat(MovePawnToQueen(piece, table)).Concat(MovePawnToStep(piece, table)).ToList();
+
+    /// <summary>
     /// Determina el movimiento de una pieza
     /// </summary>
     /// <param name="piece">Pieza</param>
@@ -17,7 +47,7 @@ public static class ChessMoves
         List<(int, int)> aux = PossibleMoves(piece, piece.Move(table), table);
         List<Play> possible = new List<Play>();
 
-        foreach (var item in aux) possible.Add(new Play(piece.Positions.Current, item, (-1, -1),table));
+        foreach (var item in aux) possible.Add(new Play(piece.Positions.Current, item, (-1, -1), table));
 
         return possible;
     }
@@ -35,7 +65,7 @@ public static class ChessMoves
         List<(int, int)> aux = PossibleMoves(piece, piece.MoveCapture(table), table);
         List<Play> possible = new List<Play>();
 
-        foreach (var item in aux) possible.Add(new Play(piece.Positions.Current, item, item,table));
+        foreach (var item in aux) possible.Add(new Play(piece.Positions.Current, item, item, table));
 
         return possible;
     }
@@ -74,7 +104,7 @@ public static class ChessMoves
             if (!table[ind, 0]!.NotMove()) return possible;
 
             if (!TreatPosition(table, (ind, 1), piece.Color) && !TreatPosition(table, (ind, 2), piece.Color))
-                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 0), (ind, 1), (ind, 2),table));
+                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 0), (ind, 1), (ind, 2), table));
         }
 
         if (table[ind, 7] is Rock && table[ind, 6] is null && table[ind, 5] is null && table[ind, 4] is null)
@@ -83,7 +113,7 @@ public static class ChessMoves
 
             if (!TreatPosition(table, (ind, 6), piece.Color) && !TreatPosition(table, (ind, 5), piece.Color) &&
                 !TreatPosition(table, (ind, 4), piece.Color))
-                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 6), (ind, 5), (ind, 4),table));
+                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 6), (ind, 5), (ind, 4), table));
         }
 
         return possible;
@@ -103,7 +133,7 @@ public static class ChessMoves
 
         foreach (var item in PossibleMoves(piece, piece.Move(table), table)
                      .Concat(PossibleMoves(piece, piece.MoveCapture(table), table)))
-            possible.Add(new PlayPawnToQueen((Pawn) piece, piece.Positions.Current, item, item,table));
+            possible.Add(new PlayPawnToQueen((Pawn) piece, piece.Positions.Current, item, item, table));
 
         return possible;
     }
@@ -148,14 +178,14 @@ public static class ChessMoves
             if (aux)
             {
                 if (!PossibleJake(piece, result1, result2, positionKing, table))
-                    possible.Add(new Play(piece.Positions.Current, result1, result2,table));
+                    possible.Add(new Play(piece.Positions.Current, result1, result2, table));
             }
 
             aux = DecidePawnToStep(current, (0, -1), directionMove, table, ref result1, ref result2);
             if (aux)
             {
                 if (!PossibleJake(piece, result1, result2, positionKing, table))
-                    possible.Add(new Play(piece.Positions.Current, result1, result2,table));
+                    possible.Add(new Play(piece.Positions.Current, result1, result2, table));
             }
         }
 
@@ -272,7 +302,8 @@ public static class ChessMoves
     /// <param name="positionKing">Posicion del rey</param>
     /// <param name="table">Tablero</param>
     /// <returns>Determina si El rey queda en jake para un movimiento</returns>
-    private static bool PossibleJake(Piece piece, (int, int) position, (int, int) positionCapture, (int, int) positionKing,
+    private static bool PossibleJake(Piece piece, (int, int) position, (int, int) positionCapture,
+        (int, int) positionKing,
         Table table)
     {
         bool possible = false;
