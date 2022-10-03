@@ -4,10 +4,10 @@ Table t=new Table();
 
 TableCopy copy = t.Copy();
 
-List<Play> l = ChessMoves.Move(copy[1, 0]!, copy);
-l[0].PlayGame();
-l = ChessMoves.Move(copy[2, 0]!, copy);
-l[0].PlayGame();
+// copy[2, 2] = copy[0, 0];
+// Console.WriteLine(copy[0,0].Current);
+// List<Play> l = ChessMoves.Move(copy[1, 0]!, copy);
+// Console.WriteLine(copy[1,0].Current);
 
 Print(t);
 Console.WriteLine();

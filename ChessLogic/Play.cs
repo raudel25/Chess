@@ -8,7 +8,7 @@ public class Play
 
     public (int, int) PositionCapture { get; private set; }
 
-    protected Table Table;
+    protected readonly Table Table;
 
     internal Play((int, int) positionCurrent, (int, int) positionMove, (int, int) positionCapture, Table table)
     {
@@ -51,12 +51,12 @@ public class PlayEnRock : Play
 
 public class PlayPawnToQueen : Play
 {
-    public Piece Piece { get; set; }
+    private Piece Piece { get;}
 
     internal PlayPawnToQueen(Pawn pawn, (int, int) positionCurrent, (int, int) positionMove,
         (int, int) positionCapture,Table table) : base(positionCurrent, positionMove, positionCapture,table)
     {
-        this.Piece = new Queen(pawn.Color, pawn.Positions);
+        this.Piece = new Queen(pawn.Color);
     }
 
     public override void PlayGame()

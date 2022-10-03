@@ -47,7 +47,7 @@ public static class ChessMoves
         List<(int, int)> aux = PossibleMoves(piece, piece.Move(table), table);
         List<Play> possible = new List<Play>();
 
-        foreach (var item in aux) possible.Add(new Play(piece.Positions.Current, item, (-1, -1), table));
+        foreach (var item in aux) possible.Add(new Play(piece.Current, item, (-1, -1), table));
 
         return possible;
     }
@@ -65,7 +65,7 @@ public static class ChessMoves
         List<(int, int)> aux = PossibleMoves(piece, piece.MoveCapture(table), table);
         List<Play> possible = new List<Play>();
 
-        foreach (var item in aux) possible.Add(new Play(piece.Positions.Current, item, item, table));
+        foreach (var item in aux) possible.Add(new Play(piece.Current, item, item, table));
 
         return possible;
     }
@@ -82,7 +82,7 @@ public static class ChessMoves
     /// <returns>Lista de posibles jugadas</returns>
     public static List<PlayEnRock> MoveEnRock(Piece piece, Table table)
     {
-        if (!piece.NotMove() || piece is not King) return new List<PlayEnRock>();
+        if (!piece.NotMove || piece is not King) return new List<PlayEnRock>();
 
         if (piece.Color == Color.White) return DeterminateEnRock(table, piece, 0);
 
@@ -101,19 +101,19 @@ public static class ChessMoves
         List<PlayEnRock> possible = new List<PlayEnRock>();
         if (table[ind, 0] is Rock && table[ind, 1] is null && table[ind, 2] is null)
         {
-            if (!table[ind, 0]!.NotMove()) return possible;
+            if (!table[ind, 0]!.NotMove) return possible;
 
             if (!TreatPosition(table, (ind, 1), piece.Color) && !TreatPosition(table, (ind, 2), piece.Color))
-                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 0), (ind, 1), (ind, 2), table));
+                possible.Add(new PlayEnRock(piece.Current, (ind, 0), (ind, 1), (ind, 2), table));
         }
 
         if (table[ind, 7] is Rock && table[ind, 6] is null && table[ind, 5] is null && table[ind, 4] is null)
         {
-            if (!table[ind, 7]!.NotMove()) return possible;
+            if (!table[ind, 7]!.NotMove) return possible;
 
             if (!TreatPosition(table, (ind, 6), piece.Color) && !TreatPosition(table, (ind, 5), piece.Color) &&
                 !TreatPosition(table, (ind, 4), piece.Color))
-                possible.Add(new PlayEnRock(piece.Positions.Current, (ind, 6), (ind, 5), (ind, 4), table));
+                possible.Add(new PlayEnRock(piece.Current, (ind, 6), (ind, 5), (ind, 4), table));
         }
 
         return possible;
@@ -133,7 +133,7 @@ public static class ChessMoves
 
         foreach (var item in PossibleMoves(piece, piece.Move(table), table)
                      .Concat(PossibleMoves(piece, piece.MoveCapture(table), table)))
-            possible.Add(new PlayPawnToQueen((Pawn) piece, piece.Positions.Current, item, item, table));
+            possible.Add(new PlayPawnToQueen((Pawn) piece, piece.Current, item, item, table));
 
         return possible;
     }
@@ -147,9 +147,9 @@ public static class ChessMoves
     {
         if (piece is not Pawn) return false;
 
-        if (piece.Color == Color.White && piece.Positions.Current.Item1 == 7) return true;
+        if (piece.Color == Color.White && piece.Current.Item1 == 7) return true;
 
-        if (piece.Color == Color.Black && piece.Positions.Current.Item1 == 1) return true;
+        if (piece.Color == Color.Black && piece.Current.Item1 == 1) return true;
 
         return false;
     }
@@ -165,10 +165,10 @@ public static class ChessMoves
         List<Play> possible = new List<Play>();
 
         if (piece is not Pawn) return possible;
-        (int, int) current = piece.Positions.Current;
-        (int, int) initial = piece.Positions[0];
+        (int, int) current = piece.Current;
+        int initialRow = piece.Color == Color.White ? 1 : 6;
 
-        if (Math.Abs(current.Item1 - initial.Item1) == 3)
+        if (Math.Abs(current.Item1 - initialRow) == 3)
         {
             (int, int) directionMove = piece.Color == Color.White ? (1, 0) : (-1, 0);
             (int, int) positionKing = PositionKing(table, piece.Color);
@@ -178,14 +178,14 @@ public static class ChessMoves
             if (aux)
             {
                 if (!PossibleJake(piece, result1, result2, positionKing, table))
-                    possible.Add(new Play(piece.Positions.Current, result1, result2, table));
+                    possible.Add(new Play(piece.Current, result1, result2, table));
             }
 
             aux = DecidePawnToStep(current, (0, -1), directionMove, table, ref result1, ref result2);
             if (aux)
             {
                 if (!PossibleJake(piece, result1, result2, positionKing, table))
-                    possible.Add(new Play(piece.Positions.Current, result1, result2, table));
+                    possible.Add(new Play(piece.Current, result1, result2, table));
             }
         }
 
@@ -212,7 +212,11 @@ public static class ChessMoves
         {
             if (table[positionPaw.Item1, positionPaw.Item2] is Pawn)
             {
-                if (table[positionPaw.Item1, positionPaw.Item2]!.NotMove(1) &&
+                Color color = table[positionPaw.Item1, positionPaw.Item2]!.Color;
+                TableCopy history = table.HistoryTable(table.CantTurns - 1);
+                
+                if (history[color == Color.White ? 1 : 6, positionPaw.Item2] is Pawn &&
+                    history[positionPaw.Item1, positionPaw.Item2] is null &&
                     table[positionMove.Item1, positionMove.Item2] is null)
                 {
                     (result1, result2) = ((positionMove.Item1, positionMove.Item2),
@@ -307,13 +311,14 @@ public static class ChessMoves
         Table table)
     {
         bool possible = false;
-        (int, int) current = piece.Positions.Current;
+        (int, int) current = piece.Current;
 
         TableCopy copy = table.Copy();
-        
+
         Piece? aux = table[positionCapture.Item1, positionCapture.Item2];
         (copy[position.Item1, position.Item2], copy[current.Item1, current.Item2]) =
-            (table[current.Item1, current.Item2], null);
+            (copy[current.Item1, current.Item2], null);
+        Console.WriteLine(piece.Current+"*");
 
         if (TreatPosition(copy, positionKing, piece.Color, true)) possible = true;
 

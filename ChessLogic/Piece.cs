@@ -23,21 +23,22 @@ public abstract class Piece
     /// </summary>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public virtual List<(int, int)> Move(Table table) => Moves.Move(this.Positions.Current, table);
+    public virtual List<(int, int)> Move(Table table) => Moves.Move(this.Current, table);
 
     /// <summary>
     /// Determina el movimineto de captura de la pieza
     /// </summary>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public List<(int, int)> MoveCapture(Table table) => Moves.MoveCapture(this.Positions.Current, table);
+    public List<(int, int)> MoveCapture(Table table) => Moves.MoveCapture(this.Current, table);
 
-    /// <summary>
-    /// Lista de posiciones del tablero que ha ocupado la pieza
-    /// </summary>
-    public Positions Positions { get; private set; }
-    
-    public int Convert { get; }
+    // /// <summary>
+    // /// Lista de posiciones del tablero que ha ocupado la pieza
+    // /// </summary>
+    // public Positions Positions { get; private set; }
+    public bool NotMove { get; internal set; }
+
+    public (int, int) Current { get; internal set; }
 
     /// <summary>
     /// Movimiento de la pieza
@@ -46,26 +47,8 @@ public abstract class Piece
 
     protected Piece(Color color)
     {
-        this.Convert = -1;
         this.Color = color;
-        this.Positions = new Positions();
-    }
-    protected Piece(Color color,Positions positions)
-    {
-        this.Convert = positions.Count;
-        this.Color = color;
-        this.Positions = positions;
-    }
-
-    public bool NotMove(int ind = 0)
-    {
-        (int, int) aux = this.Positions[0];
-
-        foreach (var item in this.Positions.Take(this.Positions.Count - ind))
-            if (item != aux)
-                return false;
-
-        return true;
+        this.NotMove = true;
     }
 
     public abstract Piece Clone();

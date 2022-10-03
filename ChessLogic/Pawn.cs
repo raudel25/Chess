@@ -12,13 +12,6 @@ public class Pawn : Piece
         int[] auxCapture = color == Color.White ? new[] {6, 4} : new[] {0, 2};
         this.Moves = new Moves(aux, auxCapture, color, true);
     }
-    
-    private Pawn(Color color,Positions positions) : base(color,positions)
-    {
-        int[] aux = color == Color.White ? new[] {5} : new[] {1};
-        int[] auxCapture = color == Color.White ? new[] {6, 4} : new[] {0, 2};
-        this.Moves = new Moves(aux, auxCapture, color, true);
-    }
 
     public override List<(int, int)> Move(Table table)
     {
@@ -26,11 +19,11 @@ public class Pawn : Piece
 
         if (possible.Count > 0)
         {
-            if (this.NotMove()) return possible.Concat(this.Moves.Move(possible[0], table)).ToList();
+            if (this.NotMove) return possible.Concat(this.Moves.Move(possible[0], table)).ToList();
         }
     
         return possible;
     }
 
-    public override Piece Clone() => new Pawn(this.Color,this.Positions.Clone());
+    public override Piece Clone() => new Pawn(this.Color);
 }

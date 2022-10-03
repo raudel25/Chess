@@ -7,10 +7,7 @@ public class Table
     /// </summary>
     protected Piece?[,] TablePieces;
 
-    /// <summary>
-    /// Lista de piezas capturadas
-    /// </summary>
-    private readonly List<Piece> _captured;
+    private List<TableCopy> _history;
 
     /// <summary>
     /// Cantidad de filas
@@ -49,14 +46,14 @@ public class Table
     public Table()
     {
         this.TablePieces = StartPosition();
-        this._captured = new List<Piece>();
+        this._history = new List<TableCopy>();
         this.Turn = Color.White;
     }
 
     protected Table(Piece?[,] table)
     {
         this.TablePieces = table;
-        this._captured = new List<Piece>();
+        this._history = new List<TableCopy>();
         this.Turn = Color.White;
     }
 
@@ -87,7 +84,7 @@ public class Table
         {
             for (int j = 0; j < 8; j++)
             {
-                if (table[i, j] is not null) table[i, j]!.Positions.Add((i, j));
+                if (table[i, j] is not null) table[i, j]!.Current = (i, j);
             }
         }
 
@@ -102,7 +99,7 @@ public class Table
     /// <param name="position">Posicion</param>
     internal void Capture((int, int) position)
     {
-        _captured.Add(TablePieces[position.Item1, position.Item2]!);
+        // _captured.Add(TablePieces[position.Item1, position.Item2]!);
         TablePieces[position.Item1, position.Item2] = null;
     }
 
@@ -113,8 +110,14 @@ public class Table
     /// <param name="positionMove">Posicion para moverse</param>
     internal void Move((int, int) positionCurrent, (int, int) positionMove)
     {
-        Turn = TablePieces[positionCurrent.Item1, positionCurrent.Item2]!.Color == Color.White ? Color.Black : Color.White;
-        (TablePieces[positionCurrent.Item1, positionCurrent.Item2], TablePieces[positionMove.Item1, positionMove.Item2]) =
+        Turn = TablePieces[positionCurrent.Item1, positionCurrent.Item2]!.Color == Color.White
+            ? Color.Black
+            : Color.White;
+
+        TablePieces[positionCurrent.Item1, positionCurrent.Item2]!.NotMove = false;
+            
+        (TablePieces[positionCurrent.Item1, positionCurrent.Item2],
+                TablePieces[positionMove.Item1, positionMove.Item2]) =
             (null, TablePieces[positionCurrent.Item1, positionCurrent.Item2]);
     }
 
@@ -128,14 +131,15 @@ public class Table
     /// <summary>
     /// Actualizar las posiciones de las piezas
     /// </summary>
-    internal virtual void ActPosition()
+    internal void ActPosition()
     {
         for (int i = 0; i < TablePieces.GetLength(0); i++)
         {
             for (int j = 0; j < TablePieces.GetLength(1); j++)
                 if (TablePieces[i, j] is not null)
-                    TablePieces[i, j]!.Positions.Add((i, j));
+                    TablePieces[i, j]!.Current = (i, j);
         }
+        _history.Add(Copy());
 
         CantTurns++;
     }
@@ -145,32 +149,5 @@ public class Table
     /// </summary>
     /// <param name="ind">Indice del historial</param>
     /// <returns>Tablero</returns>
-    public Piece?[,] HistoryTable(int ind)
-    {
-        Piece?[,] table = new Piece[8, 8];
-
-        for (int i = 0; i < 8; i++)
-        {
-            for (int j = 0; j < 8; j++)
-            {
-                if (TablePieces[i, j] is not null)
-                {
-                    var aux = TablePieces[i, j]!.Positions[ind];
-                    if (TablePieces[i, j]!.Convert > ind) table[aux.Item1, aux.Item2] = new Pawn(TablePieces[i, j]!.Color);
-                    else table[aux.Item1, aux.Item2] = TablePieces[i, j];
-                }
-            }
-        }
-
-        foreach (var item in _captured)
-        {
-            if (ind < item.Positions.Count)
-            {
-                var aux = item.Positions[ind];
-                table[aux.Item1, aux.Item2] = item;
-            }
-        }
-
-        return table;
-    }
+    public TableCopy HistoryTable(int ind) => _history[ind];
 }
