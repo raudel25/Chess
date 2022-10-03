@@ -13,11 +13,15 @@ public static class ChessMoves
     public static List<Play> PossibleMoves(Color color, Table table)
     {
         IEnumerable<Play> possible = new List<Play>();
+
         for (int i = 0; i < table.Rows; i++)
         {
             for (int j = 0; j < table.Columns; j++)
             {
-                if (table[i, j] is not null) possible = possible.Concat(PossibleMoves(table[i, j]!, table));
+                if (table[i, j] is not null)
+                {
+                    if (table[i, j]!.Color == color) possible = possible.Concat(PossibleMoves(table[i, j]!, table));
+                }
             }
         }
 
@@ -173,18 +177,20 @@ public static class ChessMoves
             (int, int) directionMove = piece.Color == Color.White ? (1, 0) : (-1, 0);
             (int, int) positionKing = PositionKing(table, piece.Color);
 
+            TableCopy copy = table.Copy();
+
             ((int, int) result1, (int, int) result2) = ((0, 0), (0, 0));
             bool aux = DecidePawnToStep(current, (0, 1), directionMove, table, ref result1, ref result2);
             if (aux)
             {
-                if (!PossibleJake(piece, result1, result2, positionKing, table))
+                if (!PossibleJake(piece, result1, result2, positionKing, copy))
                     possible.Add(new Play(piece.Current, result1, result2, table));
             }
 
             aux = DecidePawnToStep(current, (0, -1), directionMove, table, ref result1, ref result2);
             if (aux)
             {
-                if (!PossibleJake(piece, result1, result2, positionKing, table))
+                if (!PossibleJake(piece, result1, result2, positionKing, copy))
                     possible.Add(new Play(piece.Current, result1, result2, table));
             }
         }
@@ -214,7 +220,7 @@ public static class ChessMoves
             {
                 Color color = table[positionPaw.Item1, positionPaw.Item2]!.Color;
                 Piece?[,] history = table.HistoryTable(table.CantTurns - 1);
-                
+
                 if (history[color == Color.White ? 1 : 6, positionPaw.Item2] is Pawn &&
                     history[positionPaw.Item1, positionPaw.Item2] is null &&
                     table[positionMove.Item1, positionMove.Item2] is null)
@@ -240,7 +246,7 @@ public static class ChessMoves
     /// <param name="table">Tablero</param>
     /// <param name="color">Color</param>
     /// <returns>Determina si el rey esta en jake</returns>
-    public static bool Jake(Table table, Color color) => TreatPosition(table, PositionKing(table, color), color);
+    public static bool Jake(Color color, Table table) => TreatPosition(table, PositionKing(table, color), color);
 
     /// <summary>
     /// Determina si una casilla esta amenazada
@@ -260,7 +266,7 @@ public static class ChessMoves
             {
                 if (table[i, j] is not null)
                 {
-                    if (table[i, j]!.Color == color)
+                    if (table[i, j]!.Color != color)
                     {
                         List<(int, int)> positions =
                             singleMove
@@ -289,9 +295,11 @@ public static class ChessMoves
         bool king = piece is King;
         (int, int) positionKing = king ? (-1, -1) : PositionKing(table, piece.Color);
 
+        TableCopy copy = table.Copy();
+
         foreach (var item in possible)
         {
-            if (!PossibleJake(piece, item, item, king ? item : positionKing, table)) possibleAct.Add(item);
+            if (!PossibleJake(piece, item, item, king ? item : positionKing, copy)) possibleAct.Add(item);
         }
 
         return possibleAct;
@@ -304,25 +312,25 @@ public static class ChessMoves
     /// <param name="position">Posicion</param>
     /// <param name="positionCapture">Posicion de la pieza a capturar</param>
     /// <param name="positionKing">Posicion del rey</param>
-    /// <param name="table">Tablero</param>
+    /// <param name="copy">Tablero</param>
     /// <returns>Determina si El rey queda en jake para un movimiento</returns>
     private static bool PossibleJake(Piece piece, (int, int) position, (int, int) positionCapture,
-        (int, int) positionKing,
-        Table table)
+        (int, int) positionKing, TableCopy copy)
     {
         bool possible = false;
         (int, int) current = piece.Current;
 
-        TableCopy copy = table.Copy();
+        Piece? captured = copy[positionCapture.Item1, positionCapture.Item2];
 
-        Piece? aux = table[positionCapture.Item1, positionCapture.Item2];
+        copy[positionCapture.Item1, positionCapture.Item2] = null;
+
         (copy[position.Item1, position.Item2], copy[current.Item1, current.Item2]) =
             (copy[current.Item1, current.Item2], null);
 
         if (TreatPosition(copy, positionKing, piece.Color, true)) possible = true;
 
         (copy[positionCapture.Item1, positionCapture.Item2], copy[current.Item1, current.Item2]) =
-            (aux, table[position.Item1, position.Item2]);
+            (captured, copy[position.Item1, position.Item2]);
 
         return possible;
     }

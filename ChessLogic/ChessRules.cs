@@ -9,7 +9,7 @@ public static class ChessRules
     /// <param name="table">Tablero</param>
     /// <returns>Determina si el jugador ha perdido</returns>
     public static bool JakeMate(Color color, Table table) =>
-        ChessMoves.Jake(table, color) && ChessMoves.PossibleMoves(color, table).Count == 0;
+        ChessMoves.Jake(color, table) && ChessMoves.PossibleMoves(color, table).Count == 0;
 
     /// <summary>
     /// Determina si los jugadores han hecho tablas
@@ -19,7 +19,7 @@ public static class ChessRules
     /// <returns>Determina si los jugadores han hecho tablas</returns>
     public static bool Draw(Table table, Color color) =>
         Draw50StepKing(table) || DrawDrownedKing(color, table) || DrawEqualsPositions(table);
-    
+
     /// <summary>
     /// Tablas por rey ahogado
     /// </summary>
@@ -27,7 +27,7 @@ public static class ChessRules
     /// <param name="table">Tablero</param>
     /// <returns>Tablas por rey ahogado</returns>
     public static bool DrawDrownedKing(Color color, Table table) =>
-        !ChessMoves.Jake(table, color) && ChessMoves.PossibleMoves(color, table).Count == 0;
+        !ChessMoves.Jake(color, table) && ChessMoves.PossibleMoves(color, table).Count == 0;
 
     /// <summary>
     /// Tablas por 3 posiciones iguales
@@ -39,7 +39,7 @@ public static class ChessRules
         if (table.CantTurns < 8) return false;
 
         List<Piece?[,]> positions = new List<Piece?[,]>();
-        for (int i = 8; i >= 0; i++)   positions.Add(table.HistoryTable(table.CantTurns-i));
+        for (int i = 8; i >= 0; i++) positions.Add(table.HistoryTable(table.CantTurns - i));
 
         bool a = Table.EqualTable(positions[0], positions[4]) && Table.EqualTable(positions[4], positions[8]);
         bool b = Table.EqualTable(positions[1], positions[5]);
