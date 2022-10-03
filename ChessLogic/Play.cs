@@ -51,18 +51,33 @@ public class PlayEnRock : Play
 
 public class PlayPawnToQueen : Play
 {
-    private Piece Piece { get;}
+    private Piece _piece;
 
-    internal PlayPawnToQueen(Pawn pawn, (int, int) positionCurrent, (int, int) positionMove,
+    internal PlayPawnToQueen(Color color, (int, int) positionCurrent, (int, int) positionMove,
         (int, int) positionCapture,Table table) : base(positionCurrent, positionMove, positionCapture,table)
     {
-        this.Piece = new Queen(pawn.Color);
+        this._piece = new Queen(color);
+    }
+
+    public void Convert(int ind)
+    {
+        switch (ind)
+        {
+            case 0: _piece = new Queen(_piece.Color);
+                break;
+            case 1: _piece = new Rock(_piece.Color);
+                break;
+            case 2: _piece = new Bishop(_piece.Color);
+                break;
+            default: _piece = new Knight(_piece.Color);
+                break;
+        }
     }
 
     public override void PlayGame()
     {
         BasicPlayGame();
-        Table.Convert(Piece, this.PositionMove);
+        Table.Convert(_piece, this.PositionMove);
         Table.ActPosition();
     }
 }

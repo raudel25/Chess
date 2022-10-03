@@ -7,7 +7,7 @@ public class Table
     /// </summary>
     protected Piece?[,] TablePieces;
 
-    private List<TableCopy> _history;
+    private readonly List<TableCopy> _history;
 
     /// <summary>
     /// Cantidad de filas
@@ -48,6 +48,7 @@ public class Table
         this.TablePieces = StartPosition();
         this._history = new List<TableCopy>();
         this.Turn = Color.White;
+        this._history.Add(Copy());
     }
 
     protected Table(Piece?[,] table)

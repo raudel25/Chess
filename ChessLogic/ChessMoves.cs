@@ -133,7 +133,7 @@ public static class ChessMoves
 
         foreach (var item in PossibleMoves(piece, piece.Move(table), table)
                      .Concat(PossibleMoves(piece, piece.MoveCapture(table), table)))
-            possible.Add(new PlayPawnToQueen((Pawn) piece, piece.Current, item, item, table));
+            possible.Add(new PlayPawnToQueen(piece.Color, piece.Current, item, item, table));
 
         return possible;
     }
@@ -318,7 +318,6 @@ public static class ChessMoves
         Piece? aux = table[positionCapture.Item1, positionCapture.Item2];
         (copy[position.Item1, position.Item2], copy[current.Item1, current.Item2]) =
             (copy[current.Item1, current.Item2], null);
-        Console.WriteLine(piece.Current+"*");
 
         if (TreatPosition(copy, positionKing, piece.Color, true)) possible = true;
 
