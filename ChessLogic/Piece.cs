@@ -12,6 +12,16 @@ public abstract class Piece
     /// Color de la pieza
     /// </summary>
     public Color Color { get; private set; }
+    
+    /// <summary>
+    /// Determina si la ficha no se ha movido
+    /// </summary>
+    public bool NotMove { get; internal set; }
+
+    /// <summary>
+    /// Determina la posicion actual de la pieza
+    /// </summary>
+    public (int, int) Current { get; internal set; }
 
     /// <summary>
     /// Valor de la pieza
@@ -32,14 +42,6 @@ public abstract class Piece
     /// <returns>Lista de posibles casillas</returns>
     public List<(int, int)> MoveCapture(Table table) => Moves.MoveCapture(this.Current, table);
 
-    // /// <summary>
-    // /// Lista de posiciones del tablero que ha ocupado la pieza
-    // /// </summary>
-    // public Positions Positions { get; private set; }
-    public bool NotMove { get; internal set; }
-
-    public (int, int) Current { get; internal set; }
-
     /// <summary>
     /// Movimiento de la pieza
     /// </summary>
@@ -51,5 +53,9 @@ public abstract class Piece
         this.NotMove = true;
     }
 
+    /// <summary>
+    /// Devuelve una nueva instancia del objeto
+    /// </summary>
+    /// <returns>Nueva instancia del objeto</returns>
     public abstract Piece Clone();
 }

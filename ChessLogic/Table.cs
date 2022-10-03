@@ -7,6 +7,9 @@ public class Table
     /// </summary>
     protected Piece?[,] TablePieces;
 
+    /// <summary>
+    /// Historial de posiciones
+    /// </summary>
     private readonly List<Piece?[,]> _history;
 
     /// <summary>
@@ -92,6 +95,10 @@ public class Table
         return table;
     }
 
+    /// <summary>
+    /// Devuleve una copia del tablero
+    /// </summary>
+    /// <returns></returns>
     public TableCopy Copy() => new TableCopy(TablePieces);
 
     /// <summary>
@@ -100,7 +107,6 @@ public class Table
     /// <param name="position">Posicion</param>
     internal void Capture((int, int) position) => TablePieces[position.Item1, position.Item2] = null;
     
-
     /// <summary>
     /// Movimiento
     /// </summary>
@@ -141,6 +147,13 @@ public class Table
 
         CantTurns++;
     }
+    
+    /// <summary>
+    /// Devuelve una copia de un tablero
+    /// </summary>
+    /// <param name="table">Tablero</param>
+    /// <param name="reference">Determina si las piezas son pasadas por referencia</param>
+    /// <returns>Copia del tablero</returns>
     protected static Piece?[,] BuildCopy(Piece?[,] table, bool reference = false)
     {
         Piece?[,] copy = new Piece[8, 8];
@@ -164,6 +177,12 @@ public class Table
         return copy;
     }
 
+    /// <summary>
+    /// Determina si dos tableros son iguales
+    /// </summary>
+    /// <param name="a">Tablero a</param>
+    /// <param name="b">Tablero b</param>
+    /// <returns>Determina si dos tableros son iguales</returns>
     public static bool EqualTable(Piece?[,] a, Piece?[,] b)
     {
         for (int i = 0; i < a.GetLength(0); i++)

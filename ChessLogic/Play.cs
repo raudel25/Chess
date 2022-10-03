@@ -2,12 +2,24 @@ namespace ChessLogic;
 
 public class Play
 {
+    /// <summary>
+    /// Posicion actual de la pieza
+    /// </summary>
     public (int, int) PositionCurrent { get; private set; }
 
+    /// <summary>
+    /// Posicion para moverse
+    /// </summary>
     public (int, int) PositionMove { get; private set; }
 
+    /// <summary>
+    /// Posicion de la pieza que se va a capturar
+    /// </summary>
     public (int, int) PositionCapture { get; private set; }
 
+    /// <summary>
+    /// Tablero
+    /// </summary>
     protected readonly Table Table;
 
     internal Play((int, int) positionCurrent, (int, int) positionMove, (int, int) positionCapture, Table table)
@@ -23,7 +35,10 @@ public class Play
         if (PositionCapture != (-1, -1)) Table.Capture(PositionCapture);
         Table.Move(PositionCurrent, PositionMove);
     }
-
+    
+    /// <summary>
+    /// Realizar la jugada
+    /// </summary>
     public virtual void PlayGame()
     {
         BasicPlayGame();
@@ -33,6 +48,9 @@ public class Play
 
 public class PlayEnRock : Play
 {
+    /// <summary>
+    /// Jugada de la torre
+    /// </summary>
     private readonly Play _playRock;
 
     internal PlayEnRock((int, int) kingCurrent, (int, int) rockCurrent, (int, int) kingMove,
@@ -51,6 +69,9 @@ public class PlayEnRock : Play
 
 public class PlayPawnToQueen : Play
 {
+    /// <summary>
+    /// Pieza para convertir
+    /// </summary>
     private Piece _piece;
 
     internal PlayPawnToQueen(Color color, (int, int) positionCurrent, (int, int) positionMove,
@@ -59,6 +80,10 @@ public class PlayPawnToQueen : Play
         this._piece = new Queen(color);
     }
 
+    /// <summary>
+    /// Seeccionar la pieza para convertir
+    /// </summary>
+    /// <param name="ind">Indice de la pieza a convertir</param>
     public void Convert(int ind)
     {
         switch (ind)

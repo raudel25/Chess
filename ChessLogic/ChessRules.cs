@@ -2,15 +2,38 @@ namespace ChessLogic;
 
 public static class ChessRules
 {
+    /// <summary>
+    /// Determina si el jugador ha perdido
+    /// </summary>
+    /// <param name="color">Color del jugador</param>
+    /// <param name="table">Tablero</param>
+    /// <returns>Determina si el jugador ha perdido</returns>
     public static bool JakeMate(Color color, Table table) =>
         ChessMoves.Jake(table, color) && ChessMoves.PossibleMoves(color, table).Count == 0;
 
+    /// <summary>
+    /// Determina si los jugadores han hecho tablas
+    /// </summary>
+    /// <param name="table">Tablero</param>
+    /// <param name="color">Color del jugador</param>
+    /// <returns>Determina si los jugadores han hecho tablas</returns>
     public static bool Draw(Table table, Color color) =>
         Draw50StepKing(table) || DrawDrownedKing(color, table) || DrawEqualsPositions(table);
     
+    /// <summary>
+    /// Tablas por rey ahogado
+    /// </summary>
+    /// <param name="color">Color del jugador</param>
+    /// <param name="table">Tablero</param>
+    /// <returns>Tablas por rey ahogado</returns>
     public static bool DrawDrownedKing(Color color, Table table) =>
         !ChessMoves.Jake(table, color) && ChessMoves.PossibleMoves(color, table).Count == 0;
 
+    /// <summary>
+    /// Tablas por 3 posiciones iguales
+    /// </summary>
+    /// <param name="table">Tablero</param>
+    /// <returns>Tablas por 3 posiciones iguales</returns>
     public static bool DrawEqualsPositions(Table table)
     {
         if (table.CantTurns < 8) return false;
@@ -26,6 +49,11 @@ public static class ChessRules
         return a && b && c && d;
     }
 
+    /// <summary>
+    /// Tablas por rey 50 pasos solo con el rey
+    /// </summary>
+    /// <param name="table">Tablero</param>
+    /// <returns>Tablas por rey 50 pasos solo con el rey</returns>
     public static bool Draw50StepKing(Table table)
     {
         if (table.CantTurns < 99) return false;
@@ -33,6 +61,11 @@ public static class ChessRules
         return OnePiece(table.HistoryTable(table.CantTurns - 99));
     }
 
+    /// <summary>
+    /// Determina si un jugador solo tiene al rey
+    /// </summary>
+    /// <param name="table">Tablero</param>
+    /// <returns>Determina si un jugador solo tiene al rey</returns>
     private static bool OnePiece(Piece?[,] table)
     {
         (int white, int black) = (0, 0);

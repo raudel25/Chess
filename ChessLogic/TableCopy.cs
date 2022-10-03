@@ -2,8 +2,14 @@ namespace ChessLogic;
 
 public class TableCopy : Table
 {
+    /// <summary>
+    /// Copia del tablero original
+    /// </summary>
     private readonly Piece?[,] _copy;
 
+    /// <summary>
+    /// Piezas propias del tablero
+    /// </summary>
     private readonly HashSet<Piece> _pieces;
 
     public new Piece? this[int i, int j]
@@ -32,12 +38,18 @@ public class TableCopy : Table
         SetSave();
     }
 
+    /// <summary>
+    /// Devolver el tablero a su estado original
+    /// </summary>
     public void Reset()
     {
         this.TablePieces = BuildCopy(_copy);
         SetSave();
     }
 
+    /// <summary>
+    /// Guardar las piezas del tablero
+    /// </summary>
     private void SetSave()
     {
         this._pieces.Clear();
