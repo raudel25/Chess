@@ -7,7 +7,7 @@ public class Table
     /// </summary>
     protected Piece?[,] TablePieces;
 
-    private readonly List<TableCopy> _history;
+    private readonly List<Piece?[,]> _history;
 
     /// <summary>
     /// Cantidad de filas
@@ -46,15 +46,15 @@ public class Table
     public Table()
     {
         this.TablePieces = StartPosition();
-        this._history = new List<TableCopy>();
+        this._history = new List<Piece?[,]>();
         this.Turn = Color.White;
-        this._history.Add(Copy());
+        this._history.Add(BuildCopy(TablePieces,true));
     }
 
     protected Table(Piece?[,] table)
     {
         this.TablePieces = table;
-        this._history = new List<TableCopy>();
+        this._history = new List<Piece?[,]>();
         this.Turn = Color.White;
     }
 
@@ -98,11 +98,8 @@ public class Table
     /// Movimiento de captura
     /// </summary>
     /// <param name="position">Posicion</param>
-    internal void Capture((int, int) position)
-    {
-        // _captured.Add(TablePieces[position.Item1, position.Item2]!);
-        TablePieces[position.Item1, position.Item2] = null;
-    }
+    internal void Capture((int, int) position) => TablePieces[position.Item1, position.Item2] = null;
+    
 
     /// <summary>
     /// Movimiento
@@ -140,9 +137,51 @@ public class Table
                 if (TablePieces[i, j] is not null)
                     TablePieces[i, j]!.Current = (i, j);
         }
-        _history.Add(Copy());
+        _history.Add(TableCopy.BuildCopy(TablePieces,true));
 
         CantTurns++;
+    }
+    protected static Piece?[,] BuildCopy(Piece?[,] table, bool reference = false)
+    {
+        Piece?[,] copy = new Piece[8, 8];
+
+        for (int i = 0; i < table.GetLength(0); i++)
+        {
+            for (int j = 0; j < table.GetLength(1); j++)
+            {
+                if (table[i, j] is not null)
+                {
+                    if (reference) copy[i, j] = table[i, j];
+                    else
+                    {
+                        copy[i, j] = table[i, j]!.Clone();
+                        copy[i, j]!.Current = (i, j);
+                    }
+                }
+            }
+        }
+
+        return copy;
+    }
+
+    public static bool EqualTable(Piece?[,] a, Piece?[,] b)
+    {
+        for (int i = 0; i < a.GetLength(0); i++)
+        {
+            for (int j = 0; j < b.GetLength(1); j++)
+            {
+                if (a[i, j] is not null)
+                {
+                    if (!a[i, j]!.Equals(b[i, j])) return false;
+                }
+                else
+                {
+                    if (b[i, j] is not null) return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -150,5 +189,5 @@ public class Table
     /// </summary>
     /// <param name="ind">Indice del historial</param>
     /// <returns>Tablero</returns>
-    public TableCopy HistoryTable(int ind) => _history[ind];
+    public Piece?[,] HistoryTable(int ind) => _history[ind];
 }

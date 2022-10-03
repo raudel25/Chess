@@ -213,7 +213,7 @@ public static class ChessMoves
             if (table[positionPaw.Item1, positionPaw.Item2] is Pawn)
             {
                 Color color = table[positionPaw.Item1, positionPaw.Item2]!.Color;
-                TableCopy history = table.HistoryTable(table.CantTurns - 1);
+                Piece?[,] history = table.HistoryTable(table.CantTurns - 1);
                 
                 if (history[color == Color.White ? 1 : 6, positionPaw.Item2] is Pawn &&
                     history[positionPaw.Item1, positionPaw.Item2] is null &&

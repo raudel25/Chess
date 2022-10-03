@@ -20,7 +20,7 @@ public class TableCopy : Table
 
             if (TablePieces[i, j] is not null)
             {
-                if(_pieces.Contains(TablePieces[i,j]!)) TablePieces[i, j]!.Current = (i, j);
+                if (_pieces.Contains(TablePieces[i, j]!)) TablePieces[i, j]!.Current = (i, j);
             }
         }
     }
@@ -38,29 +38,10 @@ public class TableCopy : Table
         SetSave();
     }
 
-    private static Piece?[,] BuildCopy(Piece?[,] table)
-    {
-        Piece?[,] copy = new Piece[8, 8];
-
-        for (int i = 0; i < table.GetLength(0); i++)
-        {
-            for (int j = 0; j < table.GetLength(1); j++)
-            {
-                if (table[i, j] is not null)
-                {
-                    copy[i, j] = table[i, j]!.Clone();
-                    copy[i, j]!.Current = (i, j);
-                }
-            }
-        }
-
-        return copy;
-    }
-
     private void SetSave()
     {
         this._pieces.Clear();
-        
+
         for (int i = 0; i < TablePieces.GetLength(0); i++)
         {
             for (int j = 0; j < TablePieces.GetLength(1); j++)
