@@ -18,10 +18,7 @@ public static class ChessMoves
         {
             for (int j = 0; j < table.Columns; j++)
             {
-                if (table[i, j] is not null)
-                {
-                    if (table[i, j]!.Color == color) possible = possible.Concat(PossibleMoves(table[i, j]!, table));
-                }
+                if (table[i, j]!.Color == color) possible = possible.Concat(PossibleMoves((i, j), table));
             }
         }
 
@@ -31,21 +28,25 @@ public static class ChessMoves
     /// <summary>
     /// Determina todos los posibles movimientos de una pieza
     /// </summary>
-    /// <param name="piece">Pieza</param>
+    /// <param name="position">Posicion de la pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Posibles movimientos</returns>
-    public static List<Play> PossibleMoves(Piece piece, Table table) =>
-        Move(piece, table).Concat(MoveCapture(piece, table)).Concat(MoveEnRock(piece, table))
-            .Concat(MovePawnToQueen(piece, table)).Concat(MovePawnToStep(piece, table)).ToList();
+    public static List<Play> PossibleMoves((int, int) position, Table table) => Move(position, table)
+        .Concat(MoveCapture(position, table)).Concat(MoveEnRock(position, table))
+        .Concat(MovePawnToQueen(position, table)).Concat(MovePawnToStep(position, table)).ToList();
+
 
     /// <summary>
     /// Determina el movimiento de una pieza
     /// </summary>
-    /// <param name="piece">Pieza</param>
+    /// <param name="position">Posicion de la pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles jugadas</returns>
-    public static List<Play> Move(Piece piece, Table table)
+    public static List<Play> Move((int, int) position, Table table)
     {
+        if (table[position.Item1, position.Item2] is null) return new List<Play>();
+        Piece piece = table[position.Item1, position.Item2]!;
+
         if (ConditionPawnToQueen(piece)) return new List<Play>();
 
         List<(int, int)> aux = PossibleMoves(piece, piece.Move(table), table);
@@ -59,11 +60,14 @@ public static class ChessMoves
     /// <summary>
     /// Determina el movimiento de captura de una pieza
     /// </summary>
-    /// <param name="piece">Pieza</param>
+    /// <param name="position">Posicion de la pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles jugadas</returns>
-    public static List<Play> MoveCapture(Piece piece, Table table)
+    public static List<Play> MoveCapture((int, int) position, Table table)
     {
+        if (table[position.Item1, position.Item2] is null) return new List<Play>();
+        Piece piece = table[position.Item1, position.Item2]!;
+
         if (ConditionPawnToQueen(piece)) return new List<Play>();
 
         List<(int, int)> aux = PossibleMoves(piece, piece.MoveCapture(table), table);
@@ -81,11 +85,14 @@ public static class ChessMoves
     /// <summary>
     /// Determina el enroque
     /// </summary>
-    /// <param name="piece">Pieza</param>
+    /// <param name="position">Posicion de la pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles jugadas</returns>
-    public static List<PlayEnRock> MoveEnRock(Piece piece, Table table)
+    public static List<PlayEnRock> MoveEnRock((int, int) position, Table table)
     {
+        if (table[position.Item1, position.Item2] is null) return new List<PlayEnRock>();
+        Piece piece = table[position.Item1, position.Item2]!;
+
         if (!piece.NotMove || piece is not King) return new List<PlayEnRock>();
 
         if (piece.Color == Color.White) return DeterminateEnRock(table, piece, 0);
@@ -126,11 +133,14 @@ public static class ChessMoves
     /// <summary>
     /// Determina las jugadas con las que un peon puede coronar
     /// </summary>
-    /// <param name="piece">Pieza</param>
+    /// <param name="position">Posicion de la pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de jugadas</returns>
-    public static List<PlayPawnToQueen> MovePawnToQueen(Piece piece, Table table)
+    public static List<PlayPawnToQueen> MovePawnToQueen((int, int) position, Table table)
     {
+        if (table[position.Item1, position.Item2] is null) return new List<PlayPawnToQueen>();
+        Piece piece = table[position.Item1, position.Item2]!;
+
         if (!ConditionPawnToQueen(piece)) return new List<PlayPawnToQueen>();
 
         List<PlayPawnToQueen> possible = new List<PlayPawnToQueen>();
@@ -161,11 +171,14 @@ public static class ChessMoves
     /// <summary>
     /// Determina el movimiento del peon al paso
     /// </summary>
-    /// <param name="piece">Pieza</param>
+    /// <param name="position">Posicion de la pieza</param>
     /// <param name="table">Tablero</param>
     /// <returns>Lista de posibles casillas</returns>
-    public static List<Play> MovePawnToStep(Piece piece, Table table)
+    public static List<Play> MovePawnToStep((int, int) position, Table table)
     {
+        if (table[position.Item1, position.Item2] is null) return new List<Play>();
+        Piece piece = table[position.Item1, position.Item2]!;
+
         List<Play> possible = new List<Play>();
 
         if (piece is not Pawn) return possible;

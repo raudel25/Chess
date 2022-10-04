@@ -3,18 +3,13 @@
 Table t=new Table();
 
 List<Play> l;
-// l = ChessMoves.Move(t[0, 6]!,t);
-// l[1].PlayGame();
-// l = ChessMoves.Move(t[2, 5]!, t);
-// l[2].PlayGame();
-// l = ChessMoves.MoveCapture(t[4, 6]!, t);
-// l[1].PlayGame();
-l = ChessMoves.Move(t[6, 2]!, t);
-l[0].PlayGame();
-l = ChessMoves.Move(t[5, 2]!, t);
-l[0].PlayGame();
-l = ChessMoves.MovePawnToStep(t[4, 1]!, t);
-Console.WriteLine(l.Count);
+l = ChessMoves.Move((1,3),t);
+l[1].PlayGame();
+l = ChessMoves.Move((6,4), t);
+l[1].PlayGame();
+l = ChessMoves.Move((7,4), t);
+l[1].PlayGame();
+l = ChessMoves.Move((2, 2), t);
 
 // l = ChessMoves.Move(t[2, 2]!, t);
 // l[0].PlayGame();
