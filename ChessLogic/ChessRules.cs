@@ -17,7 +17,7 @@ public static class ChessRules
     /// <param name="table">Tablero</param>
     /// <param name="color">Color del jugador</param>
     /// <returns>Determina si los jugadores han hecho tablas</returns>
-    public static bool Draw(Table table, Color color) =>
+    public static bool Draw(Color color, Table table) =>
         Draw50StepKing(table) || DrawDrownedKing(color, table) || DrawEqualsPositions(table);
 
     /// <summary>

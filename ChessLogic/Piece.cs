@@ -1,11 +1,5 @@
 ﻿namespace ChessLogic;
 
-public enum Color
-{
-    White,
-    Black
-}
-
 public abstract class Piece
 {
     /// <summary>

@@ -161,7 +161,7 @@ public static class ChessMoves
     {
         if (piece is not Pawn) return false;
 
-        if (piece.Color == Color.White && piece.Current.Item1 == 7) return true;
+        if (piece.Color == Color.White && piece.Current.Item1 == 6) return true;
 
         if (piece.Color == Color.Black && piece.Current.Item1 == 1) return true;
 
