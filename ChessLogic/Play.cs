@@ -30,7 +30,7 @@ public class Play
         this.Table = table;
     }
 
-    protected void BasicPlayGame()
+    internal void BasicPlayGame()
     {
         if (PositionCapture != (-1, -1)) Table.Capture(PositionCapture);
         Table.Move(PositionCurrent, PositionMove);
@@ -62,7 +62,7 @@ public class PlayEnRock : Play
     public override void PlayGame()
     {
         BasicPlayGame();
-        _playRock.PlayGame();
+        _playRock.BasicPlayGame();
         Table.ActPosition();
     }
 }

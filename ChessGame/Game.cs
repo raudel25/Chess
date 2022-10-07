@@ -36,7 +36,7 @@ public class Game
         this._playerBlack = new Player(Color.Black, strategyBlack);
     }
 
-    public void RunGame()
+    public IEnumerable<string[,]> RunGame()
     {
         Color colorAct = Color.White;
         int cantTurns = 0;
@@ -44,6 +44,8 @@ public class Game
 
         while (true)
         {
+            yield return Printer.Table(_table);
+            
             state = CheckFinalGame(colorAct);
             if (state != GameState.ContinueGame) break;
 

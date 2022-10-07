@@ -39,7 +39,7 @@ public static class ChessRules
         if (table.CantTurns < 8) return false;
 
         List<Piece?[,]> positions = new List<Piece?[,]>();
-        for (int i = 8; i >= 0; i++) positions.Add(table.HistoryTable(table.CantTurns - i));
+        for (int i = 8; i >= 0; i--) positions.Add(table.HistoryTable(table.CantTurns - i));
 
         bool a = Table.EqualTable(positions[0], positions[4]) && Table.EqualTable(positions[4], positions[8]);
         bool b = Table.EqualTable(positions[1], positions[5]);

@@ -26,4 +26,6 @@ public class Pawn : Piece
     }
 
     public override Piece Clone() => new Pawn(this.Color);
+    
+    public override string ToString() => "P" + (Color == Color.White ? "W" : "B");
 }

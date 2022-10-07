@@ -54,11 +54,11 @@ public class Moves
         foreach (var item in this._validMove)
         {
             (int, int) position = SumPosition(positionCurrent, Direction[item]);
-            
+
             while (DecideMove(table, position, possible))
             {
                 position = SumPosition(position, Direction[item]);
-                if(this._oneMove) break;
+                if (this._oneMove) break;
             }
         }
 
@@ -78,11 +78,11 @@ public class Moves
         foreach (var item in this._validCapture)
         {
             (int, int) position = SumPosition(positionCurrent, Direction[item]);
-            
+
             while (DecideToCapture(table, position, possible))
             {
                 position = SumPosition(position, Direction[item]);
-                if(this._oneMove) break;
+                if (this._oneMove) break;
             }
         }
 
@@ -123,12 +123,7 @@ public class Moves
 
         if (table[position.Item1, position.Item2] is null) return true;
 
-        if (table[position.Item1, position.Item2]!.Color != this._color)
-        {
-            possible.Add(position);
-
-            return true;
-        }
+        if (table[position.Item1, position.Item2]!.Color != this._color) possible.Add(position);
 
         return false;
     }

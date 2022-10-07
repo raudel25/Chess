@@ -12,4 +12,6 @@ public class King : Piece
     }
 
     public override Piece Clone() => new King(this.Color);
+    
+    public override string ToString() => "K" + (Color == Color.White ? "W" : "B");
 }

@@ -12,4 +12,6 @@ public class Bishop : Piece
     }
 
     public override Piece Clone() => new Bishop(this.Color);
+    
+    public override string ToString() => "B" + (Color == Color.White ? "W" : "B");
 }

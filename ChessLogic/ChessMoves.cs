@@ -18,7 +18,10 @@ public static class ChessMoves
         {
             for (int j = 0; j < table.Columns; j++)
             {
-                if (table[i, j]!.Color == color) possible = possible.Concat(PossibleMoves((i, j), table));
+                if (table[i, j] is not null)
+                {
+                    if (table[i, j]!.Color == color) possible = possible.Concat(PossibleMoves((i, j), table));
+                }
             }
         }
 

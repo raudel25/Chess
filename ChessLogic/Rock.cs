@@ -12,4 +12,6 @@ public class Rock : Piece
     }
 
     public override Piece Clone() => new Rock(this.Color);
+
+    public override string ToString() => "R" + (Color == Color.White ? "W" : "B");
 }

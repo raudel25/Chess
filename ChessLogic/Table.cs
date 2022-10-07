@@ -59,6 +59,7 @@ public class Table
         this.TablePieces = table;
         this._history = new List<Piece?[,]>();
         this.Turn = Color.White;
+        this._history.Add(BuildCopy(TablePieces,true));
     }
 
     /// <summary>
