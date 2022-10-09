@@ -13,5 +13,5 @@ public class Knight : Piece
 
     public override Piece Clone() => new Knight(this.Color);
     
-    public override string ToString() => "Kn" + (Color == Color.White ? "W" : "B");
+    public override string ToString() => "N" + (Color == Color.White ? "W" : "B");
 }

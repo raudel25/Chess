@@ -17,18 +17,14 @@ public class HumanPlayer : IStrategy
 
             if (s is null) continue;
 
-            string[] s1 = s.Split();
-
-            (int, int) currentPos = (int.Parse(s1[0]), int.Parse(s1[1]));
+            (int, int) currentPos = (s[2]-'1', s[0]-'a');
 
             Console.Write("Movimiento: ");
             s = Console.ReadLine();
 
             if (s is null) continue;
-
-            s1 = s.Split();
-
-            (int, int) movePos = (int.Parse(s1[0]), int.Parse(s1[1]));
+            
+            (int, int) movePos = (s[2]-'1', s[0]-'a');
 
             move = Correct(currentPos, movePos, plays);
         }

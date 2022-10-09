@@ -10,7 +10,7 @@ public class Table
     /// <summary>
     /// Historial de posiciones
     /// </summary>
-    private readonly List<Piece?[,]> _history;
+    protected readonly List<Piece?[,]> History;
 
     /// <summary>
     /// Cantidad de filas
@@ -25,17 +25,12 @@ public class Table
     /// <summary>
     /// Cantidad de turnos
     /// </summary>
-    public int CantTurns { get; private set; }
+    public int CantTurns { get; protected set; }
 
     /// <summary>
     /// Turno inmediato
     /// </summary>
-    public Color Turn { get; private set; }
-
-    /// <summary>
-    /// Copia del tablero
-    /// </summary>
-    //public Piece?[,] Copy { get; private set; }
+    public Color Turn { get; protected set; }
 
     public Piece? this[int i, int j]
     {
@@ -49,17 +44,17 @@ public class Table
     public Table()
     {
         this.TablePieces = StartPosition();
-        this._history = new List<Piece?[,]>();
+        this.History = new List<Piece?[,]>();
         this.Turn = Color.White;
-        this._history.Add(BuildCopy(TablePieces,true));
+        this.History.Add(BuildCopy(TablePieces,true));
     }
 
-    protected Table(Piece?[,] table)
+    protected Table(Piece?[,] table,List<Piece?[,]> history)
     {
         this.TablePieces = table;
-        this._history = new List<Piece?[,]>();
+        this.History = history;
         this.Turn = Color.White;
-        this._history.Add(BuildCopy(TablePieces,true));
+        this.History.Add(BuildCopy(TablePieces,true));
     }
 
     /// <summary>
@@ -100,7 +95,7 @@ public class Table
     /// Devuleve una copia del tablero
     /// </summary>
     /// <returns></returns>
-    public TableCopy Copy() => new TableCopy(TablePieces);
+    public TableCopy Copy() => new TableCopy(BuildCopy(TablePieces),History.Take(10).ToList());
 
     /// <summary>
     /// Movimiento de captura
@@ -144,7 +139,7 @@ public class Table
                 if (TablePieces[i, j] is not null)
                     TablePieces[i, j]!.Current = (i, j);
         }
-        _history.Add(TableCopy.BuildCopy(TablePieces,true));
+        History.Add(TableCopy.BuildCopy(TablePieces,true));
 
         CantTurns++;
     }
@@ -170,6 +165,7 @@ public class Table
                     {
                         copy[i, j] = table[i, j]!.Clone();
                         copy[i, j]!.Current = (i, j);
+                        copy[i, j]!.NotMove = table[i, j]!.NotMove;
                     }
                 }
             }
@@ -209,5 +205,5 @@ public class Table
     /// </summary>
     /// <param name="ind">Indice del historial</param>
     /// <returns>Tablero</returns>
-    public Piece?[,] HistoryTable(int ind) => _history[ind];
+    public Piece?[,] HistoryTable(int ind) => History[ind];
 }

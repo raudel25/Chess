@@ -1,30 +1,45 @@
 ﻿using ChessGame;
+using ChessLogic;
 
-Game game=new Game(new HumanPlayer(),new RandomPLayer());
-
-foreach (var item in game.RunGame())
+Table t = new Table();
+TableCopy t1 = t.Copy();
+List<Play> l = ChessMoves.PossibleMoves(Color.White,t1);
+l[0].PlayGame();
+Print(Printer.Table(t1));
+t1.ResetPlay();
+Print(Printer.Table(t1));
+// Game game = new Game(new RandomPlayer(), new RandomPlayer());
+//
+// foreach (var item in game.RunGame())
+// {
+//
+//     Print(item, true);
+//
+//     Thread.Sleep(1000);
+// }
+//
+static void Print(string[,] item, bool invert=true)
 {
     Console.Clear();
 
-    for (int i = 0; i < 8; i++)
+
+    for (int i = invert ? 7 : 0; invert ? i >= 0 : i < 8; i = invert ? i - 1 : i + 1)
     {
+        Console.Write(i + 1 + " ");
         for (int j = 0; j < 8; j++)
         {
             if (item[i, j] == "B" || item[i, j] == "W")
             {
-                Console.Write(" *  ");
+                Console.Write(" * ");
                 continue;
             }
-            if(item[i,j].Length==2) Console.Write(item[i,j]+"  ");
-            else
-            {
-                Console.Write(item[i,j]+" ");
-            }
+
+            Console.Write(item[i, j] + " ");
         }
+
         Console.WriteLine();
-        
-        
     }
-    Thread.Sleep(3000);
-    
+    Console.Write("  ");
+    for (int i = 0; i < 8; i++) Console.Write(" " + (char)('A' + i) + " ");
+    Console.WriteLine();
 }

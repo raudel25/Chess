@@ -31,9 +31,9 @@ public class TableCopy : Table
         }
     }
 
-    public TableCopy(Piece?[,] table) : base(BuildCopy(table))
+    public TableCopy(Piece?[,] table,List<Piece?[,]> history) : base(BuildCopy(table),history)
     {
-        this._copy = BuildCopy(table);
+        this._copy = table;
         this._pieces = new HashSet<Piece>();
         SetSave();
     }
@@ -45,6 +45,16 @@ public class TableCopy : Table
     {
         this.TablePieces = BuildCopy(_copy);
         SetSave();
+    }
+
+    public void ResetPlay()
+    {
+        if(History.Count<2) return;
+        
+        this.TablePieces = BuildCopy(History[History.Count - 2]);
+        History.Remove(History[History.Count - 1]);
+        CantTurns--;
+        Turn = Turn == Color.White ? Color.Black : Color.White;
     }
 
     /// <summary>
