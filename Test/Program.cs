@@ -1,23 +1,25 @@
 ﻿using ChessGame;
 using ChessLogic;
 
-Table t = new Table();
-TableCopy t1 = t.Copy();
-List<Play> l = ChessMoves.PossibleMoves(Color.White,t1);
-l[0].PlayGame();
-Print(Printer.Table(t1));
-t1.ResetPlay();
-Print(Printer.Table(t1));
-// Game game = new Game(new RandomPlayer(), new RandomPlayer());
+// Table t = new Table();
+// TableCopy t1 = t.Copy();
 //
-// foreach (var item in game.RunGame())
-// {
+// List<Play> l=ChessMoves.PossibleMoves(Color.White,t1);
+// l[4].PlayGame();
+// t1.ResetPlay();
+// l[5].PlayGame();
 //
-//     Print(item, true);
-//
-//     Thread.Sleep(1000);
-// }
-//
+// Print(Printer.Table(t1));
+Game game = new Game(new HumanPlayer(), new MinMaxPlayer());
+
+foreach (var item in game.RunGame())
+{
+
+    Print(item, true);
+
+    Thread.Sleep(1000);
+}
+
 static void Print(string[,] item, bool invert=true)
 {
     Console.Clear();
