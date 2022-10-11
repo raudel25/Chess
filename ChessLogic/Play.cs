@@ -35,14 +35,30 @@ public class Play
         if (PositionCapture != (-1, -1)) Table.Capture(PositionCapture);
         Table.Move(PositionCurrent, PositionMove);
     }
-    
+
     /// <summary>
     /// Realizar la jugada
     /// </summary>
     public virtual void PlayGame()
     {
+        ImmediateMove();
         BasicPlayGame();
         Table.ActPosition();
+    }
+
+    protected virtual void ImmediateMove()
+    {
+        TableCopy? copy = Table as TableCopy;
+        if (copy is not null)
+        {
+            List<ImmediateMove> immediateMoves = new List<ImmediateMove>();
+            immediateMoves.Clear();
+            immediateMoves.Add(new ImmediateMove(Table[PositionCurrent.Item1, PositionCurrent.Item2]!,
+                PositionCapture == (-1, -1) ? null : Table[PositionCapture.Item1, PositionCapture.Item2],
+                PositionCurrent, PositionMove, PositionCapture));
+
+            copy.AddLastMove(immediateMoves);
+        }
     }
 }
 
@@ -61,9 +77,26 @@ public class PlayEnRock : Play
 
     public override void PlayGame()
     {
+        ImmediateMove();
         BasicPlayGame();
         _playRock.BasicPlayGame();
         Table.ActPosition();
+    }
+
+    protected override void ImmediateMove()
+    {
+        TableCopy? copy = Table as TableCopy;
+        if (copy is not null)
+        {
+            List<ImmediateMove> immediateMoves = new List<ImmediateMove>();
+            immediateMoves.Add(new ImmediateMove(Table[PositionCurrent.Item1, PositionCurrent.Item2]!,
+                null, PositionCurrent, PositionMove, PositionCapture));
+            immediateMoves.Add(new ImmediateMove(
+                Table[_playRock.PositionCurrent.Item1, _playRock.PositionCurrent.Item2]!,
+                null, _playRock.PositionCurrent, _playRock.PositionMove, _playRock.PositionCapture));
+
+            copy.AddLastMove(immediateMoves);
+        }
     }
 }
 
@@ -75,7 +108,7 @@ public class PlayPawnToQueen : Play
     private Piece _piece;
 
     internal PlayPawnToQueen(Color color, (int, int) positionCurrent, (int, int) positionMove,
-        (int, int) positionCapture,Table table) : base(positionCurrent, positionMove, positionCapture,table)
+        (int, int) positionCapture, Table table) : base(positionCurrent, positionMove, positionCapture, table)
     {
         this._piece = new Queen(color);
     }
@@ -88,13 +121,17 @@ public class PlayPawnToQueen : Play
     {
         switch (ind)
         {
-            case 0: _piece = new Queen(_piece.Color);
+            case 0:
+                _piece = new Queen(_piece.Color);
                 break;
-            case 1: _piece = new Rock(_piece.Color);
+            case 1:
+                _piece = new Rock(_piece.Color);
                 break;
-            case 2: _piece = new Bishop(_piece.Color);
+            case 2:
+                _piece = new Bishop(_piece.Color);
                 break;
-            default: _piece = new Knight(_piece.Color);
+            default:
+                _piece = new Knight(_piece.Color);
                 break;
         }
     }

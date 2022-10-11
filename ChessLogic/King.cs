@@ -2,7 +2,7 @@ namespace ChessLogic;
 
 public class King : Piece
 {
-    public override int Valor => 10;
+    public override int Valor => 1000;
 
     protected override Moves Moves { get; }
 

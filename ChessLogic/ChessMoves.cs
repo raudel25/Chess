@@ -52,7 +52,7 @@ public static class ChessMoves
 
         if (ConditionPawnToQueen(piece)) return new List<Play>();
 
-        List<(int, int)> aux = PossibleMoves(piece, piece.Move(table), table);
+        List<(int, int)> aux = PossibleMoves(piece, piece.Move(table), table, false);
         List<Play> possible = new List<Play>();
 
         foreach (var item in aux) possible.Add(new Play(piece.Current, item, (-1, -1), table));
@@ -73,7 +73,7 @@ public static class ChessMoves
 
         if (ConditionPawnToQueen(piece)) return new List<Play>();
 
-        List<(int, int)> aux = PossibleMoves(piece, piece.MoveCapture(table), table);
+        List<(int, int)> aux = PossibleMoves(piece, piece.MoveCapture(table), table, true);
         List<Play> possible = new List<Play>();
 
         foreach (var item in aux) possible.Add(new Play(piece.Current, item, item, table));
@@ -148,8 +148,8 @@ public static class ChessMoves
 
         List<PlayPawnToQueen> possible = new List<PlayPawnToQueen>();
 
-        foreach (var item in PossibleMoves(piece, piece.Move(table), table)
-                     .Concat(PossibleMoves(piece, piece.MoveCapture(table), table)))
+        foreach (var item in PossibleMoves(piece, piece.Move(table), table, true)
+                     .Concat(PossibleMoves(piece, piece.MoveCapture(table), table, true)))
             possible.Add(new PlayPawnToQueen(piece.Color, piece.Current, item, item, table));
 
         return possible;
@@ -287,7 +287,7 @@ public static class ChessMoves
                         List<(int, int)> positions =
                             singleMove
                                 ? table[i, j]!.MoveCapture(table)
-                                : PossibleMoves(table[i, j]!, table[i, j]!.MoveCapture(table), table);
+                                : PossibleMoves(table[i, j]!, table[i, j]!.MoveCapture(table), table, true);
                         if (positions.Contains(position)) return true;
                     }
                 }
@@ -303,8 +303,9 @@ public static class ChessMoves
     /// <param name="possible">Lista de posibles jugadas</param>
     /// <param name="table">Tablero</param>
     /// <param name="piece">Pieza</param>
+    /// <param name="capture">Indica si se esta realizando una captura</param>
     /// <returns>Lista de posibles jugadas</returns>
-    private static List<(int, int)> PossibleMoves(Piece piece, List<(int, int)> possible, Table table)
+    private static List<(int, int)> PossibleMoves(Piece piece, List<(int, int)> possible, Table table, bool capture)
     {
         List<(int, int)> possibleAct = new List<(int, int)>();
 
@@ -315,7 +316,8 @@ public static class ChessMoves
 
         foreach (var item in possible)
         {
-            if (!PossibleJake(piece, item, item, king ? item : positionKing, copy)) possibleAct.Add(item);
+            if (!PossibleJake(piece, item, capture ? item : (-1, -1), king ? item : positionKing, copy))
+                possibleAct.Add(item);
         }
 
         return possibleAct;
@@ -336,17 +338,12 @@ public static class ChessMoves
         bool possible = false;
         (int, int) current = piece.Current;
 
-        Piece? captured = copy[positionCapture.Item1, positionCapture.Item2];
-
-        copy[positionCapture.Item1, positionCapture.Item2] = null;
-
-        (copy[position.Item1, position.Item2], copy[current.Item1, current.Item2]) =
-            (copy[current.Item1, current.Item2], null);
+        Play aux = new Play(current, position, positionCapture, copy);
+        aux.PlayGame();
 
         if (TreatPosition(copy, positionKing, piece.Color, true)) possible = true;
-
-        (copy[positionCapture.Item1, positionCapture.Item2], copy[current.Item1, current.Item2]) =
-            (captured, copy[position.Item1, position.Item2]);
+        
+        copy.ResetPlay();
 
         return possible;
     }

@@ -8,34 +8,14 @@ public class TableCopy : Table
     private readonly Piece?[,] _copy;
 
     /// <summary>
-    /// Piezas propias del tablero
+    /// Ultimos movientos
     /// </summary>
-    private readonly HashSet<Piece> _pieces;
+    private readonly List<List<ImmediateMove>> _moves;
 
-    public new Piece? this[int i, int j]
-    {
-        get
-        {
-            if (i < 0 || j < 0 || i >= 8 || j >= 8) throw new IndexOutOfRangeException();
-            return TablePieces[i, j];
-        }
-        set
-        {
-            if (i < 0 || j < 0 || i >= 8 || j >= 8) throw new IndexOutOfRangeException();
-            TablePieces[i, j] = value;
-
-            if (TablePieces[i, j] is not null)
-            {
-                if (_pieces.Contains(TablePieces[i, j]!)) TablePieces[i, j]!.Current = (i, j);
-            }
-        }
-    }
-
-    public TableCopy(Piece?[,] table,List<Piece?[,]> history) : base(BuildCopy(table),history)
+    public TableCopy(Piece?[,] table, List<Piece?[,]> history) : base(BuildCopy(table), history)
     {
         this._copy = table;
-        this._pieces = new HashSet<Piece>();
-        SetSave();
+        this._moves = new List<List<ImmediateMove>>();
     }
 
     /// <summary>
@@ -44,32 +24,28 @@ public class TableCopy : Table
     public void Reset()
     {
         this.TablePieces = BuildCopy(_copy);
-        SetSave();
     }
 
     public void ResetPlay()
     {
-        if(History.Count<2) return;
-        
-        this.TablePieces = BuildCopy(History[History.Count - 2]);
-        History.Remove(History[History.Count - 1]);
+        if (_moves.Count == 0) return;
+
+        foreach (var item in _moves[_moves.Count-1])
+        {
+            TablePieces[item.PosMove.Item1, item.PosMove.Item2] = null;
+            TablePieces[item.PosCurrent.Item1, item.PosCurrent.Item2] = item.Current;
+            TablePieces[item.PosCurrent.Item1, item.PosCurrent.Item2]!.Current = item.PosCurrent;
+            if (item.PosCapture != (-1, -1))
+            {
+                TablePieces[item.PosCapture.Item1, item.PosCapture.Item2] = item.Capture;
+                TablePieces[item.PosCapture.Item1, item.PosCapture.Item2]!.Current = item.PosCapture;
+            }
+        }
+
+        _moves.Remove(_moves[_moves.Count - 1]);
         CantTurns--;
         Turn = Turn == Color.White ? Color.Black : Color.White;
     }
 
-    /// <summary>
-    /// Guardar las piezas del tablero
-    /// </summary>
-    private void SetSave()
-    {
-        this._pieces.Clear();
-
-        for (int i = 0; i < TablePieces.GetLength(0); i++)
-        {
-            for (int j = 0; j < TablePieces.GetLength(1); j++)
-            {
-                if (TablePieces[i, j] is not null) this._pieces.Add(TablePieces[i, j]!);
-            }
-        }
-    }
+    public void AddLastMove(List<ImmediateMove> moves) => _moves.Add(moves);
 }

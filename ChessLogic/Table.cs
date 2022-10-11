@@ -79,7 +79,7 @@ public class Table
             table[1, i] = new Pawn(Color.White);
             table[6, i] = new Pawn(Color.Black);
         }
-
+        
         for (int i = 0; i < 8; i++)
         {
             for (int j = 0; j < 8; j++)
@@ -119,6 +119,8 @@ public class Table
         (TablePieces[positionCurrent.Item1, positionCurrent.Item2],
                 TablePieces[positionMove.Item1, positionMove.Item2]) =
             (null, TablePieces[positionCurrent.Item1, positionCurrent.Item2]);
+
+        TablePieces[positionMove.Item1, positionMove.Item2]!.Current = positionMove;
     }
 
     /// <summary>
@@ -126,19 +128,17 @@ public class Table
     /// </summary>
     /// <param name="piece">Pieza</param>
     /// <param name="position">Posicion</param>
-    internal void Convert(Piece piece, (int, int) position) => TablePieces[position.Item1, position.Item2] = piece;
+    internal void Convert(Piece piece, (int, int) position)
+    {
+        TablePieces[position.Item1, position.Item2] = piece;
+        TablePieces[position.Item1, position.Item2]!.Current = position;
+    }
 
     /// <summary>
     /// Actualizar las posiciones de las piezas
     /// </summary>
-    internal void ActPosition()
+    internal virtual void ActPosition()
     {
-        for (int i = 0; i < TablePieces.GetLength(0); i++)
-        {
-            for (int j = 0; j < TablePieces.GetLength(1); j++)
-                if (TablePieces[i, j] is not null)
-                    TablePieces[i, j]!.Current = (i, j);
-        }
         History.Add(TableCopy.BuildCopy(TablePieces,true));
 
         CantTurns++;
@@ -206,4 +206,6 @@ public class Table
     /// <param name="ind">Indice del historial</param>
     /// <returns>Tablero</returns>
     public Piece?[,] HistoryTable(int ind) => History[ind];
+
+    public Piece?[,] CurrentTable => History[History.Count - 1];
 }
