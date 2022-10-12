@@ -36,7 +36,8 @@ public class MinMaxPlayer : IStrategy
 
     private int BestMove(int depth, int alpha, int beta, Color myColor, Color simulationColor, TableCopy table)
     {
-        if (depth == 0) return Evaluate(myColor, table);
+        if (depth == 0)
+            return (Evaluate(myColor, table) - Evaluate(myColor == Color.White ? Color.Black : Color.White, table));
 
         List<Play> possible = ChessMoves.PossibleMoves(simulationColor, table);
 
@@ -62,7 +63,9 @@ public class MinMaxPlayer : IStrategy
         return move;
     }
 
-    private int Evaluate(Color color, TableCopy table)
+    private int Evaluate(Color color, TableCopy table) => Valor(color, table) + Position(color, table);
+
+    private int Valor(Color color, TableCopy table)
     {
         int sum = 0;
         for (int i = 0; i < table.Rows; i++)
@@ -71,9 +74,24 @@ public class MinMaxPlayer : IStrategy
             {
                 if (table[i, j] is not null)
                 {
-                    int valor = table[i, j]!.NotMove ? table[i, j]!.Valor : table[i, j]!.Valor + 1;
-                    if (table[i, j]!.Color == color) sum += valor;
-                    else sum -= valor;
+                    if (table[i, j]!.Color == color) sum += table[i, j]!.Valor;
+                }
+            }
+        }
+
+        return sum;
+    }
+
+    private int Position(Color color, TableCopy table)
+    {
+        int sum = 0;
+        for (int i = 0; i < table.Rows; i++)
+        {
+            for (int j = 0; j < table.Columns; j++)
+            {
+                if (table[i, j] is not null)
+                {
+                    if (table[i, j]!.Color == color && !table[i, j]!.NotMove) sum += 2;
                 }
             }
         }

@@ -12,19 +12,13 @@ public class HumanPlayer : IStrategy
 
         while (move is null)
         {
-            Console.Write("Actual: ");
+            Console.Write("Movimient: ");
             string? s = Console.ReadLine();
 
             if (s is null) continue;
 
-            (int, int) currentPos = (s[2]-'1', s[0]-'a');
-
-            Console.Write("Movimiento: ");
-            s = Console.ReadLine();
-
-            if (s is null) continue;
-            
-            (int, int) movePos = (s[2]-'1', s[0]-'a');
+            (int, int) currentPos = (s[1] - '1', 'h'-s[0]);
+            (int, int) movePos = (s[3] - '1','h'- s[2]);
 
             move = Correct(currentPos, movePos, plays);
         }

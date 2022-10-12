@@ -342,7 +342,7 @@ public static class ChessMoves
         aux.PlayGame();
 
         if (TreatPosition(copy, positionKing, piece.Color, true)) possible = true;
-        
+
         copy.ResetPlay();
 
         return possible;

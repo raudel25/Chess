@@ -28,7 +28,7 @@ static void Print(string[,] item, bool invert=true)
     for (int i = invert ? 7 : 0; invert ? i >= 0 : i < 8; i = invert ? i - 1 : i + 1)
     {
         Console.Write(i + 1 + " ");
-        for (int j = 0; j < 8; j++)
+        for (int j = 7; j >= 0; j--)
         {
             if (item[i, j] == "B" || item[i, j] == "W")
             {

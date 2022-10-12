@@ -43,6 +43,7 @@ public class TableCopy : Table
         }
 
         _moves.Remove(_moves[_moves.Count - 1]);
+        History.Remove(History[History.Count - 1]);
         CantTurns--;
         Turn = Turn == Color.White ? Color.Black : Color.White;
     }
