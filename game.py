@@ -22,3 +22,8 @@ class Game:
             turn = not turn
 
             yield board
+
+        if board.is_checkmate():
+            yield 'Las ' + ('blancas' if not turn else 'negras') + ' han ganado'
+        else:
+            yield 'Tablas'
