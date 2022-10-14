@@ -1,4 +1,4 @@
-from strategy import Strategy
+from .strategy import Strategy
 
 
 class Player:

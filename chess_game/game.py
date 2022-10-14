@@ -1,5 +1,5 @@
-from player import Player
-from strategy import Strategy
+from .player import Player
+from .strategy import Strategy
 import chess
 
 
@@ -21,7 +21,7 @@ class Game:
 
             turn = not turn
 
-            yield board
+            yield str(board)
 
         if board.is_checkmate():
             yield 'Las ' + ('blancas' if not turn else 'negras') + ' han ganado'

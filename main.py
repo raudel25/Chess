@@ -1,11 +1,12 @@
 import time
-import strategy
+import chess_game.game as game
+import chess_game.strategy as strategy
 import os
-from game import Game
 
-game: Game = Game(strategy.MiniMaxPlayer(), strategy.GreedyPlayer())
 
-for i in game.run_game():
+my_game: game.Game = game.Game(strategy.RandomPlayer(), strategy.MiniMaxPlayer())
+
+for i in my_game.run_game():
     os.system('clear')
     print(i)
     time.sleep(2)

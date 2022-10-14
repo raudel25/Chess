@@ -1,6 +1,6 @@
 import chess
 import random
-import evaluate_state
+from .evaluate_state import EvaluateState
 from abc import ABC, abstractmethod
 
 
@@ -24,7 +24,7 @@ class GreedyPlayer(Strategy):
 
         for move in board.legal_moves:
             board.push(move)
-            possible.append((move, evaluate_state.evaluate_valor(board, white)))
+            possible.append((move, EvaluateState.evaluate_valor(board, white)))
             board.pop()
 
         possible.sort(key=lambda x: x[1], reverse=True)
@@ -65,7 +65,7 @@ class MiniMaxPlayer(Strategy):
     @staticmethod
     def best_move(board: chess.Board, depth: int, alpha: int, beta: int, is_maximizing: bool, white: bool) -> int:
         if depth == 0:
-            return evaluate_state.evaluate_valor(board, white)
+            return EvaluateState.evaluate_valor(board, white)
 
         score: int = -1000000 if is_maximizing else 1000000
 
