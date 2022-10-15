@@ -5,25 +5,22 @@ import chess
 
 class Game:
     def __init__(self, strategy_white: Strategy, strategy_black: Strategy):
-        self.__player_white: Player = Player(strategy_white, True)
-        self.__player_black: Player = Player(strategy_black, False)
+        self.__player_white: Player = Player(strategy_white)
+        self.__player_black: Player = Player(strategy_black)
 
     def run_game(self):
-        turn: bool = True
         board: chess.Board = chess.Board()
 
         yield board
 
         while not board.is_game_over(claim_draw=True):
-            player_game = self.__player_white if turn else self.__player_black
+            player_game = self.__player_white if board.turn else self.__player_black
 
             board.push(player_game.play(board))
-
-            turn = not turn
 
             yield str(board)
 
         if board.is_checkmate():
-            yield 'Las ' + ('blancas' if not turn else 'negras') + ' han ganado'
+            yield 'Las ' + ('blancas' if not board.turn else 'negras') + ' han ganado'
         else:
             yield 'Tablas'
