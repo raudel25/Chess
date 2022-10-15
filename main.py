@@ -3,8 +3,7 @@ import chess_game.game as game
 import chess_game.strategy as strategy
 import os
 
-
-my_game: game.Game = game.Game(strategy.RandomPlayer(), strategy.MiniMaxPlayer())
+my_game: game.Game = game.Game(strategy.HumanPlayer(), strategy.MiniMaxPlayer())
 
 for i in my_game.run_game():
     os.system('clear')
