@@ -44,6 +44,6 @@ class MiniMaxPlayer(Strategy):
 
 
 class MTCSPlayer(Strategy):
-    def move(self, board):
+    def move(self, board: chess.Board) -> chess.Move:
         t = MonteCarloTreeSearch(board)
         return t.best_action()
