@@ -2,7 +2,7 @@ import chess
 import random
 from .mcts import MonteCarloTreeSearch
 from .evaluate_state import sorted_moves
-from .mini_max import mini_max
+from .mini_max import max_player, min_player
 from abc import ABC, abstractmethod
 
 
@@ -40,7 +40,28 @@ class HumanPlayer(Strategy):
 
 class MiniMaxPlayer(Strategy):
     def move(self, board: chess.Board) -> chess.Move:
-        return mini_max(board, 4, -1000000, 1000000, True, board.turn)[1]
+        best_moves: list = []
+        my_color = board.turn
+        possible: list = list(board.legal_moves)
+        alpha = -1000000
+        beta = 1000000
+
+        for i in range(len(possible)):
+            board.push(possible[i])
+            aux: tuple = min_player(board, 3, alpha, beta, my_color)
+            board.pop()
+
+            alpha = max(alpha, aux[0])
+            best_moves.append(aux)
+
+        play: int = 0
+        score: int = -1000000
+        for i in range(len(best_moves)):
+            valor: int = max_player(best_moves[i][1], 2, -1000000, 1000000, best_moves[i][1].turn)[0]
+            if valor > score:
+                (score, play) = (valor, i)
+
+        return possible[play]
 
 
 class MTCSPlayer(Strategy):
