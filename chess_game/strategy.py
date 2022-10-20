@@ -31,11 +31,22 @@ class HumanPlayer(Strategy):
     def move(self, board: chess.Board) -> chess.Move:
         move: str = input('Intruduzca su jugada: ')
 
-        while not chess.Move.from_uci(move) in board.legal_moves:
+        while not HumanPlayer.check_move(move, board):
             print('Jugada invalida')
             move: str = input('Intruduzca su jugada: ')
 
         return chess.Move.from_uci(move)
+
+    @staticmethod
+    def check_move(move: str, board: chess.Board) -> bool:
+        if len(move) != 4:
+            return False
+        if move[0] < 'a' or move[0] > 'h' or move[2] < 'a' or move[2] > 'h':
+            return False
+        if move[1] < '1' or move[1] > '8' or move[3] < '1' or move[3] > '8':
+            return False
+
+        return chess.Move.from_uci(move) in board.legal_moves
 
 
 class MiniMaxPlayer(Strategy):
