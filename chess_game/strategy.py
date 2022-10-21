@@ -68,7 +68,8 @@ class MiniMaxPlayer(Strategy):
         play: int = 0
         score: int = -1000000
         for i in range(len(best_moves)):
-            valor: int = max_player(best_moves[i][1], 2, -1000000, 1000000, best_moves[i][1].turn)[0]
+            valor: int = best_moves[i][0] if best_moves[i][1] is None else \
+                max_player(best_moves[i][1], 2, -1000000, 1000000, best_moves[i][1].turn)[0]
             if valor > score:
                 (score, play) = (valor, i)
 
