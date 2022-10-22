@@ -7,7 +7,7 @@ Este proyecto tiene como objetivo la implementación de un motor de ajedrez en p
 Para ejecutar el proyecto debe tener instaladas las bibliotecas: <a href="https://python-chess.readthedocs.io/en/latest/">chess</a> y <a href="https://numpy.org/">numpy</a>. Para ejecutar el proyecto debe ejecutar:
 
 ```bash
-    make
+make
 ```
 para los usuarios de Linux o correr el scrip `main.py` con su interprete de python.
 
