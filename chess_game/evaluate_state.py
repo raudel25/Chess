@@ -3,6 +3,13 @@ import random
 
 
 def sorted_moves(board: chess.Board, white: bool, is_maximizing: bool = True) -> list:
+    """
+    Ordenar la lista de movimientos
+    :param board: tablero
+    :param white: color del jugador
+    :param is_maximizing: orden creciente o decreciente
+    :return: lista de posiciones ordenadas
+    """
     possible = []
 
     for move in board.legal_moves:
@@ -16,6 +23,12 @@ def sorted_moves(board: chess.Board, white: bool, is_maximizing: bool = True) ->
 
 
 def evaluate_game(board: chess.Board, white: bool) -> int:
+    """
+    Evaluar el estado del juego
+    :param board: tablero
+    :param white: color del jugador
+    :return: valor del juego
+    """
     score: int = random.randint(0, 1)
 
     for (piece, value, positions) in [(chess.PAWN, 100, position_pawns), (chess.BISHOP, 330, position_bishops),
@@ -38,6 +51,13 @@ def evaluate_game(board: chess.Board, white: bool) -> int:
 
 
 def position_determinate(pieces, position: list, white: bool):
+    """
+    Valor posicional del juego
+    :param pieces:
+    :param position:
+    :param white:
+    :return:
+    """
     score: int = 0
 
     for i in pieces:

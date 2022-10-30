@@ -3,6 +3,15 @@ import chess
 
 
 def max_player(board: chess.Board, depth: int, alpha: int, beta: int, my_color: bool) -> tuple:
+    """
+    Jugador max
+    :param board: tablero
+    :param depth: profundidad
+    :param alpha: alfa
+    :param beta: beta
+    :param my_color: color del jugador
+    :return: mejor jugada de max
+    """
     if depth == 0:
         return evaluate_game(board, my_color), None
 
@@ -27,6 +36,15 @@ def max_player(board: chess.Board, depth: int, alpha: int, beta: int, my_color: 
 
 
 def min_player(board: chess.Board, depth: int, alpha: int, beta: int, my_color: bool) -> tuple:
+    """
+    Jugador min
+    :param board: tablero
+    :param depth: profundidad
+    :param alpha: alfa
+    :param beta: beta
+    :param my_color: color del jugador
+    :return: mejor jugada de min
+    """
     if depth == 0:
         return evaluate_game(board, my_color), None
 

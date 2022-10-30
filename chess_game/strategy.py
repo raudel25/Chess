@@ -10,6 +10,11 @@ class Strategy(ABC):
 
     @abstractmethod
     def move(self, board: chess.Board) -> chess.Move:
+        """
+        Jugada del jugador segun su estrategia
+        :param board: tablero
+        :return: jugada
+        """
         pass
 
 
@@ -57,6 +62,7 @@ class MiniMaxPlayer(Strategy):
         alpha = -1000000
         beta = 1000000
 
+        # Seleccionar las mejores jugadas con profundidad 4
         for i in range(len(possible)):
             board.push(possible[i])
             aux: tuple = min_player(board, 3, alpha, beta, my_color)
@@ -65,6 +71,7 @@ class MiniMaxPlayer(Strategy):
             alpha = max(alpha, aux[0])
             best_moves.append(aux)
 
+        # De las jugadas filtradas anteriormente seleccinar la mejor con profundidad 2
         play: int = 0
         score: int = -1000000
         for i in range(len(best_moves)):
