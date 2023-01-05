@@ -25,9 +25,9 @@ de evaluación `evaluate_game`.
 
 ### Estrategias
 
-Para implementar un nuevo jugador debe crear una clase que erede de `Estrategy` e implmentar el método `move`:
+Para implementar un nuevo jugador debe crear una clase que herede de `Estrategy` e implmentar el método `move`:
 ```python
-    def move(self, board: chess.Board) -> chess.Move:
+def move(self, board: chess.Board) -> chess.Move:
 ```
 con el respectivo algoritmo de su jugador.
 
