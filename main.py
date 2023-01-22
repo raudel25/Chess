@@ -39,6 +39,8 @@ def human_player(board, board_ui, screen):
         board_ui.turn_human = True
         mx, my = pygame.mouse.get_pos()
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return True
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # If the mouse is clicked
                 if event.button == 1:
@@ -49,9 +51,10 @@ def human_player(board, board_ui, screen):
             board_ui.turn_human = False
             board_ui.move = ''
             board_ui.selected_square = (-1, -1)
-            break
 
         draw(screen, board, board_ui)
+
+        return False
 
 
 player_white = Player(select_player('blanco'))
@@ -65,25 +68,27 @@ board_ui = Board(WINDOW_SIZE[0], WINDOW_SIZE[1])
 
 draw(screen, board, board_ui)
 
-running = True
-while running:
+end = False
+while not board.is_game_over(claim_draw=True):
     player_game = player_white if board.turn else player_black
 
     if isinstance(player_game.strategy, strategy.HumanPlayer):
-        human_player(board, board_ui, screen)
+        end = human_player(board, board_ui, screen)
     else:
         board.push(player_game.play(board))
 
     for event in pygame.event.get():
         # Quit the game if the user presses the close button
         if event.type == pygame.QUIT:
-            running = False
+            end = True
+    if end:
+        break
 
     draw(screen, board, board_ui)
     time.sleep(1)
-    running = not board.is_game_over(claim_draw=True)
 
-if board.is_checkmate():
-    print('Las ' + ('blancas' if not board.turn else 'negras') + ' han ganado')
-else:
-    print('Tablas')
+if not end:
+    if board.is_checkmate():
+        print('Las ' + ('blancas' if not board.turn else 'negras') + ' han ganado')
+    else:
+        print('Tablas')
