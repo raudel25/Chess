@@ -2,6 +2,9 @@ import time
 import chess_game.game as game
 import chess_game.strategy as strategy
 import os
+import pygame
+from user_interface.board import Board
+import chess
 
 
 def select_player(color: str) -> strategy.Strategy:
@@ -48,8 +51,21 @@ def best_str_board(board) -> str:
 
 my_game: game.Game = game.Game(select_player('blanco'), select_player('negro'))
 
-for i in my_game.run_game():
-    os.system('clear')
-    print(best_str_board(i))
-    print()
-    time.sleep(1)
+WINDOW_SIZE = (600, 600)
+screen = pygame.display.set_mode(WINDOW_SIZE)
+
+board = Board(WINDOW_SIZE[0], WINDOW_SIZE[1])
+
+
+def draw(display, board1):
+    display.fill('white')
+    board.draw(display, board1)
+    pygame.display.update()
+
+
+if __name__ == '__main__':
+    for i in my_game.run_game():
+        os.system('clear')
+        # print(best_str_board(i))
+        draw(screen, i)
+        time.sleep(1)
