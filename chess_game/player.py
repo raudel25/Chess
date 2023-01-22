@@ -4,7 +4,7 @@ import chess
 
 class Player:
     def __init__(self, my_strategy: Strategy):
-        self.__strategy = my_strategy
+        self.strategy = my_strategy
 
     def play(self, board) -> chess.Move:
         """
@@ -12,4 +12,4 @@ class Player:
         :param board: tablero
         :return: jugada
         """
-        return self.__strategy.move(board)
+        return self.strategy.move(board)

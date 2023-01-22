@@ -1,5 +1,5 @@
 import time
-import chess_game.game as game
+from chess_game.player import Player
 import chess_game.strategy as strategy
 import os
 import pygame
@@ -28,44 +28,62 @@ def select_player(color: str) -> strategy.Strategy:
             return players[select]()
 
 
-def best_str_board(board) -> str:
-    str_board: str = str(board)
-    s: str = '   '
-
-    for i in range(8):
-        aux = chr(ord('a') + i)
-        s = f'{s}{aux} '
-    s = f'{s}\n\n'
-
-    for i in range(8):
-        s = f'{s}{8 - i}  {str_board[i * 16:i * 16 + 15]}  {8 - i}\n'
-
-    s = f'{s}\n   '
-
-    for i in range(8):
-        aux = chr(ord('a') + i)
-        s = f'{s}{aux} '
-
-    return s
+def draw(display, board, board_ui):
+    display.fill('white')
+    board_ui.draw(display, board)
+    pygame.display.update()
 
 
-my_game: game.Game = game.Game(select_player('blanco'), select_player('negro'))
+def human_player(board, board_ui, screen):
+    while True:
+        board_ui.turn_human = True
+        mx, my = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # If the mouse is clicked
+                if event.button == 1:
+                    board_ui.handle_click(mx, my, board)
+
+        if board_ui.move != '':
+            board.push(chess.Move.from_uci(board_ui.move))
+            board_ui.turn_human = False
+            board_ui.move = ''
+            board_ui.selected_square = (-1, -1)
+            break
+
+        draw(screen, board, board_ui)
+
+
+player_white = Player(select_player('blanco'))
+player_black = Player(select_player('negro'))
+board = chess.Board()
 
 WINDOW_SIZE = (600, 600)
 screen = pygame.display.set_mode(WINDOW_SIZE)
 
-board = Board(WINDOW_SIZE[0], WINDOW_SIZE[1])
+board_ui = Board(WINDOW_SIZE[0], WINDOW_SIZE[1])
 
+draw(screen, board, board_ui)
 
-def draw(display, board1):
-    display.fill('white')
-    board.draw(display, board1)
-    pygame.display.update()
+running = True
+while running:
+    player_game = player_white if board.turn else player_black
 
+    if isinstance(player_game.strategy, strategy.HumanPlayer):
+        human_player(board, board_ui, screen)
+    else:
+        board.push(player_game.play(board))
 
-if __name__ == '__main__':
-    for i in my_game.run_game():
-        os.system('clear')
-        # print(best_str_board(i))
-        draw(screen, i)
-        time.sleep(1)
+    for event in pygame.event.get():
+        # Quit the game if the user presses the close button
+        if event.type == pygame.QUIT:
+            running = False
+
+    draw(screen, board, board_ui)
+    time.sleep(1)
+    running = not board.is_game_over(claim_draw=True)
+
+if board.is_checkmate():
+    print('Las ' + ('blancas' if not board.turn else 'negras') + ' han ganado')
+else:
+    print('Tablas')

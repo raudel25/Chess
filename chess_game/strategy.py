@@ -34,24 +34,7 @@ class GreedyPlayer(Strategy):
 
 class HumanPlayer(Strategy):
     def move(self, board: chess.Board) -> chess.Move:
-        move: str = input('Intruduzca su jugada: ')
-
-        while not HumanPlayer.check_move(move, board):
-            print('Jugada invalida')
-            move: str = input('Intruduzca su jugada: ')
-
-        return chess.Move.from_uci(move)
-
-    @staticmethod
-    def check_move(move: str, board: chess.Board) -> bool:
-        if len(move) != 4:
-            return False
-        if move[0] < 'a' or move[0] > 'h' or move[2] < 'a' or move[2] > 'h':
-            return False
-        if move[1] < '1' or move[1] > '8' or move[3] < '1' or move[3] > '8':
-            return False
-
-        return chess.Move.from_uci(move) in board.legal_moves
+        pass
 
 
 class MiniMaxPlayer(Strategy):
@@ -76,7 +59,8 @@ class MiniMaxPlayer(Strategy):
         score: int = -1000000
         for i in range(len(best_moves)):
             valor: int = best_moves[i][0] if best_moves[i][1] is None else \
-                max_player(best_moves[i][1], 2, -1000000, 1000000, best_moves[i][1].turn)[0]
+                max_player(best_moves[i][1], 2, -1000000,
+                           1000000, best_moves[i][1].turn)[0]
             if valor > score:
                 (score, play) = (valor, i)
 
