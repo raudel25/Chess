@@ -37,13 +37,13 @@ def draw(display, board, board_ui):
 def human_player(board, board_ui, screen):
     while True:
         board_ui.turn_human = True
-        mx, my = pygame.mouse.get_pos()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return True
             if event.type == pygame.MOUSEBUTTONDOWN:
-                # If the mouse is clicked
+                # If the mouse is clicke
                 if event.button == 1:
+                    mx, my = pygame.mouse.get_pos()
                     board_ui.handle_click(mx, my, board)
 
         if board_ui.move != '':

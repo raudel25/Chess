@@ -1,5 +1,6 @@
 import pygame
 import chess
+import os
 
 
 class Square:
@@ -96,10 +97,35 @@ class Board:
                 else:
                     move = f'{Board.coord_to_move(self.selected_square)}{Board.coord_to_move((x,y))}'
 
-                    if chess.Move.from_uci(move) in board.legal_moves:
+                    find = False
+                    for i in board.legal_moves:
+                        if str(i)[:4] == move:
+                            find = True
+                            if len(str(i)) == 5:
+                                move = Board.coronate(board, move)
+
+                    if find:
                         self.move = move
                     else:
                         self.selected_square = (-1, -1)
+
+    @staticmethod
+    def coronate(board, move):
+        l = []
+        for i in board.legal_moves:
+            if str(i)[:4] == move:
+                l.append(str(i)[4])
+
+        while True:
+            os.system('clear')
+            print("Seleccione la pieza para coronar")
+            for i in l:
+                print(i, end=' ')
+
+            s = input(': ')
+            if s in l:
+                os.system('clear')
+                return move+s
 
     def draw(self, display, board: chess.Board):
         board_str = str(board)
