@@ -3,6 +3,7 @@ from chess_game.player import Player
 import chess_game.strategy as strategy
 import pygame
 from user_interface.board import Board
+from user_interface.label import Label
 import chess
 import pygame_menu
 
@@ -62,7 +63,7 @@ def select_player_b(value, ind):
 def play():
     player_white = Player(select_player(player_white_id))
     player_black = Player(select_player(player_black_id))
-   
+
     board = chess.Board()
     board_ui = Board(WINDOW_SIZE[0], WINDOW_SIZE[1])
 
@@ -87,10 +88,16 @@ def play():
         time.sleep(1)
 
     if not end:
+        message = 'Draw!'
         if board.is_checkmate():
-            print('Las ' + ('blancas' if not board.turn else 'negras') + ' han ganado')
-        else:
-            print('Tablas')
+            message = ('White' if not board.turn else 'Black') + ' player has won!'
+
+        myfont = pygame.font.SysFont("monospace", 40)
+        label = myfont.render(message, 2, (255, 255, 0))
+        screen.blit(label, (50, 250))
+        pygame.display.update()
+        time.sleep(3)
+
 
 menu = pygame_menu.Menu('Chess', WINDOW_SIZE[0], WINDOW_SIZE[0],
                         theme=pygame_menu.themes.THEME_DARK)
