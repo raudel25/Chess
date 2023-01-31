@@ -3,7 +3,6 @@ from chess_game.player import Player
 import chess_game.strategy as strategy
 import pygame
 from user_interface.board import Board
-from user_interface.label import Label
 import chess
 import pygame_menu
 
