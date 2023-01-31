@@ -122,13 +122,18 @@ def play():
     if not end:
         message = 'Draw!'
         if board.is_checkmate():
-            message = ('White' if not board.turn else 'Black') + ' player has won!'
+            message = ('White' if not board.turn else 'Black') + \
+                ' player has won!'
 
-        myfont = pygame.font.SysFont("monospace", 40)
-        label = myfont.render(message, 2, (255, 255, 0))
-        screen.blit(label, (50, 250))
-        pygame.display.update()
-        time.sleep(3)
+        end_game = pygame_menu.Menu('End Game', WINDOW_SIZE[0], WINDOW_SIZE[0],
+                                    theme=pygame_menu.themes.THEME_DARK)
+        end_game.add.label(message)
+
+        t = time.time()
+        while time.time()-t < 3:
+            end_game.update(pygame.event.get())
+            end_game.draw(screen)
+            pygame.display.update()
 
 
 menu = pygame_menu.Menu('Chess', WINDOW_SIZE[0], WINDOW_SIZE[0],
