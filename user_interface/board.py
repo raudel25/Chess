@@ -55,6 +55,7 @@ class Board:
         self.squares = self.generate_squares()
         self.images = self.generate_images()
         self.turn_human = False
+        self.to_crown = False
         self.move = ''
 
     def generate_squares(self):
@@ -102,30 +103,12 @@ class Board:
                         if str(i)[:4] == move:
                             find = True
                             if len(str(i)) == 5:
-                                move = Board.coronate(board, move)
+                                self.to_crown = True
 
                     if find:
                         self.move = move
                     else:
                         self.selected_square = (-1, -1)
-
-    @staticmethod
-    def coronate(board, move):
-        l = []
-        for i in board.legal_moves:
-            if str(i)[:4] == move:
-                l.append(str(i)[4])
-
-        while True:
-            os.system('clear')
-            print("Seleccione la pieza para coronar")
-            for i in l:
-                print(i, end=' ')
-
-            s = input(': ')
-            if s in l:
-                os.system('clear')
-                return move+s
 
     def draw(self, display, board: chess.Board):
         board_str = str(board)

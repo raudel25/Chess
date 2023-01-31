@@ -6,6 +6,24 @@ from user_interface.board import Board
 import chess
 import pygame_menu
 
+pygame.init()
+WINDOW_SIZE = (600, 600)
+screen = pygame.display.set_mode(WINDOW_SIZE)
+player_white_id = 0
+player_black_id = 0
+select_piece_to_crown = 'q'
+board_ui = Board(WINDOW_SIZE[0], WINDOW_SIZE[1])
+
+
+def select_player_w(_, ind):
+    global player_white_id
+    player_white_id = ind
+
+
+def select_player_b(_, ind):
+    global player_black_id
+    player_black_id = ind
+
 
 def select_player(ind) -> strategy.Strategy:
     players = [lambda: strategy.HumanPlayer(), lambda: strategy.RandomPlayer(), lambda: strategy.GreedyPlayer(),
@@ -20,7 +38,7 @@ def draw(display, board, board_ui):
     pygame.display.update()
 
 
-def human_player(board, board_ui, screen):
+def human_player(board):
     while True:
         board_ui.turn_human = True
         for event in pygame.event.get():
@@ -32,6 +50,11 @@ def human_player(board, board_ui, screen):
                     board_ui.handle_click(mx, my, board)
 
         if board_ui.move != '':
+            if (board_ui.to_crown):
+                board_ui.move += 'q'
+                select_to_crown()
+                board_ui.to_crown = False
+
             board.push(chess.Move.from_uci(board_ui.move))
             board_ui.turn_human = False
             board_ui.move = ''
@@ -42,21 +65,32 @@ def human_player(board, board_ui, screen):
         return False
 
 
-pygame.init()
-WINDOW_SIZE = (600, 600)
-screen = pygame.display.set_mode(WINDOW_SIZE)
-player_white_id = 0
-player_black_id = 0
+def select_to_crown():
+    end_menu = False
+
+    menu_to_crown = pygame_menu.Menu('To Crown', WINDOW_SIZE[0], WINDOW_SIZE[1],
+                                     theme=pygame_menu.themes.THEME_DARK)
+
+    menu_to_crown.add.label('Press space to play')
+    menu_to_crown.add.selector(
+        'Select Piece :', [('Queen', 'q'), ('Rock', 'r'), ('Knight', 'k'), ('Bishop', 'b')], onchange=select_piece)
+
+    while not end_menu:
+        events = pygame.event.get()
+        for i in events:
+            if i.type == pygame.KEYDOWN:
+                if i.key == pygame.K_SPACE:
+                    end_menu = True
+                    break
+
+        menu_to_crown.update(events)
+        menu_to_crown.draw(screen)
+
+        pygame.display.update()
 
 
-def select_player_w(value, ind):
-    global player_white_id
-    player_white_id = ind
-
-
-def select_player_b(value, ind):
-    global player_black_id
-    player_black_id = ind
+def select_piece(_, piece):
+    board_ui.move = board_ui.move[:-1]+piece
 
 
 def play():
@@ -64,7 +98,6 @@ def play():
     player_black = Player(select_player(player_black_id))
 
     board = chess.Board()
-    board_ui = Board(WINDOW_SIZE[0], WINDOW_SIZE[1])
 
     draw(screen, board, board_ui)
 
@@ -73,7 +106,7 @@ def play():
         player_game = player_white if board.turn else player_black
 
         if isinstance(player_game.strategy, strategy.HumanPlayer):
-            end = human_player(board, board_ui, screen)
+            end = human_player(board)
         else:
             board.push(player_game.play(board))
 
