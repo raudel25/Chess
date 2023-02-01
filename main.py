@@ -27,7 +27,7 @@ def select_player_b(_, ind):
 
 def select_player(ind) -> strategy.Strategy:
     players = [lambda: strategy.HumanPlayer(), lambda: strategy.RandomPlayer(), lambda: strategy.GreedyPlayer(),
-               lambda: strategy.MiniMaxPlayer(), lambda: strategy.MTCSPlayer()]
+               lambda: strategy.MiniMaxPlayer(), lambda: strategy.MTCSPlayer(), lambda: strategy.StockfishStrategy()]
 
     return players[ind]()
 
@@ -140,9 +140,9 @@ menu = pygame_menu.Menu('Chess', WINDOW_SIZE[0], WINDOW_SIZE[0],
                         theme=pygame_menu.themes.THEME_DARK)
 
 menu.add.selector(
-    'Player White :', [('Human', 0), ('Random', 1), ('Greedy', 2), ('MiniMax', 3), ('MTCS', 4)], onchange=select_player_w)
+    'Player White :', [('Human', 0), ('Random', 1), ('Greedy', 2), ('MiniMax', 3), ('MTCS', 4), ('Stockfish', 5)], onchange=select_player_w)
 menu.add.selector(
-    'Player Black :', [('Human', 0), ('Random', 1), ('Greedy', 2), ('MiniMax', 3), ('MTCS', 4)], onchange=select_player_b)
+    'Player Black :', [('Human', 0), ('Random', 1), ('Greedy', 2), ('MiniMax', 3), ('MTCS', 4), ('Stockfish', 5)], onchange=select_player_b)
 menu.add.button('Play', play)
 menu.add.button('Quit', pygame_menu.events.EXIT)
 menu.mainloop(screen)

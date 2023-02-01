@@ -4,6 +4,7 @@ from .mcts import MonteCarloTreeSearch
 from .evaluate_state import sorted_moves
 from .mini_max import max_player, min_player
 from abc import ABC, abstractmethod
+from stockfish import Stockfish
 
 
 class Strategy(ABC):
@@ -71,3 +72,12 @@ class MTCSPlayer(Strategy):
     def move(self, board: chess.Board) -> chess.Move:
         t = MonteCarloTreeSearch(board)
         return t.best_action()
+
+class StockfishStrategy(Strategy):
+    def __init__(self) -> None:
+        super().__init__()
+        self.stockfish = Stockfish()
+
+    def move(self, board: chess.Board) -> chess.Move:
+        self.stockfish.set_fen_position(board.fen())
+        return chess.Move.from_uci(self.stockfish.get_best_move())
