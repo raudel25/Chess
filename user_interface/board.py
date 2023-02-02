@@ -1,6 +1,5 @@
 import pygame
 import chess
-import os
 
 
 class Square:
@@ -27,25 +26,23 @@ class Square:
             self.height
         )
 
-    # get the formal notation of the tile
     def get_coord(self):
         columns = 'abcdefgh'
         return columns[self.x] + str(self.y + 1)
 
     def draw(self, display):
-        # configures if tile should be light or dark or highlighted tile
         if self.highlight:
             pygame.draw.rect(display, self.highlight_color, self.rect)
         else:
             pygame.draw.rect(display, self.draw_color, self.rect)
-        # adds the chess piece icons
+
         if self.piece_image != None:
             centering_rect = self.piece_image.get_rect()
             centering_rect.center = self.rect.center
             display.blit(self.piece_image, centering_rect.topleft)
 
 
-class Board:
+class BoardUI:
     def __init__(self, width, height):
         self.width = width
         self.height = height
@@ -96,7 +93,7 @@ class Board:
                 if self.selected_square == (-1, -1):
                     self.selected_square = (x, y)
                 else:
-                    move = f'{Board.coord_to_move(self.selected_square)}{Board.coord_to_move((x,y))}'
+                    move = f'{BoardUI.coord_to_move(self.selected_square)}{BoardUI.coord_to_move((x,y))}'
 
                     find = False
                     for i in board.legal_moves:
@@ -125,7 +122,7 @@ class Board:
             square.highlight = False
 
         if self.selected_square != (-1, -1):
-            for i in Board.legalmoves_to_coord(board, self.selected_square):
+            for i in BoardUI.legalmoves_to_coord(board, self.selected_square):
                 self.get_square_from_pos(i).highlight = True
 
         for square in self.squares:
@@ -143,11 +140,11 @@ class Board:
 
     @staticmethod
     def legalmoves_to_coord(board, coord):
-        coord = Board.coord_to_move(coord)
+        coord = BoardUI.coord_to_move(coord)
         legalmoves = []
         for i in board.legal_moves:
             if coord == str(i)[:2]:
-                (x, y) = Board.move_to_coord(i)
+                (x, y) = BoardUI.move_to_coord(i)
                 legalmoves.append((x, y))
 
         return legalmoves
