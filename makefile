@@ -1,5 +1,5 @@
 run:
 	python3 main.py
 
-requeriments:
+install:
 	pip install -r requirements.txt
